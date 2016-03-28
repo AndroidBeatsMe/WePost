@@ -1,4 +1,4 @@
-package com.nancy.wepost.login;
+package com.nancyberry.wepost;
 
 import android.app.Activity;
 import android.os.AsyncTask;
@@ -7,8 +7,6 @@ import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
-import com.nancy.wepost.R;
 
 import org.json.JSONObject;
 
