@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">WePost</string>
 
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="token_expired">Token expired</string>
+    <string name="account_page_title">Accounts</string>
+    <string name="menu_add_account">Add account</string>
+
 </resources>
