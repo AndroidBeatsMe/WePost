@@ -14,8 +14,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.nancyberry.wepost.R;
-
-import org.json.JSONObject;
+import com.nancyberry.wepost.sina.SinaSdk;
+import com.nancyberry.wepost.support.bean.AccessToken;
 
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
@@ -43,7 +43,7 @@ public class LoginActivity extends Activity {
     public static final String ACCESS_TOKEN_URI = "https://api.weibo.com/oauth2/access_token";
 
     public static final String BUNDLE_ACCESS_TOKEN = "access_token";
-    public static final String BUNDLE_EXPIRE_IN = "expires_in";
+//    public static final String BUNDLE_EXPIRE_IN = "expires_in";
 
     private WebView mWebView;
 
@@ -77,15 +77,16 @@ public class LoginActivity extends Activity {
                 view.loadUrl(url);
 
                 try {
-                    String jsonData = new AccessTokenTask().execute(code).get();
-                    JSONObject jsonObject = new JSONObject(jsonData);
-                    String accessToken = jsonObject.getString("access_token");
-                    Long expireIn = jsonObject.getLong("expires_in");
-                    Log.d(TAG, "access_token = " + accessToken);
+                    SinaSdk sinaSdk = SinaSdk.getInstance(null);
+                    AccessToken accessToken = sinaSdk.fetchAccessToken(code);
+
+                    if (accessToken == null) {
+                        Log.e(TAG, "error getting access token!");
+                        return false;
+                    }
 
                     Intent intent = new Intent();
                     intent.putExtra(BUNDLE_ACCESS_TOKEN, accessToken);
-                    intent.putExtra(BUNDLE_EXPIRE_IN, expireIn);
                     setResult(Activity.RESULT_OK, intent);
                     LoginActivity.this.finish();
 

@@ -1,5 +1,8 @@
 package com.nancyberry.wepost.support.bean;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.Serializable;
 
 /**
@@ -7,7 +10,7 @@ import java.io.Serializable;
  */
 public class AccessToken implements Serializable {
 
-    private String accessToken;
+    private String accessTokenStr;
 
     private String userId;
 
@@ -19,13 +22,18 @@ public class AccessToken implements Serializable {
 
     private long createdAt = System.currentTimeMillis();
 
-
-    public String getAccessToken() {
-        return accessToken;
+    public AccessToken(String accessTokenStr, long expiresIn) {
+        this.accessTokenStr = accessTokenStr;
+        this.expiresIn = expiresIn;
     }
 
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
+
+    public String getAccessTokenStr() {
+        return accessTokenStr;
+    }
+
+    public void setAccessTokenStr(String accessTokenStr) {
+        this.accessTokenStr = accessTokenStr;
     }
 
     public String getUserId() {
@@ -70,5 +78,14 @@ public class AccessToken implements Serializable {
 
     public boolean isExpired() {
         return System.currentTimeMillis() - createdAt >= expiresIn * 1000;
+    }
+
+    public static AccessToken fromJson(Object jsonValue) throws IllegalArgumentException, JSONException {
+        if (!(jsonValue instanceof JSONObject)) {
+            throw new IllegalArgumentException("access token should be json object!");
+        }
+
+        JSONObject jsonObject = (JSONObject) jsonValue;
+        return new AccessToken(jsonObject.getString("access_token"), jsonObject.getLong("expires_in"));
     }
 }

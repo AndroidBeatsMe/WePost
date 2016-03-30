@@ -34,8 +34,8 @@ public class AccountLab {
 //        fakeUser.setDescription("hehe");
 //        fakeAccount.setUser(fakeUser);
 //        AccessToken fakeToken = new AccessToken();
-//        fakeToken.setAccessToken("2.003hn22GaV8NND49e6fe7d00DwTiAD");
-//        fakeAccount.setAccessToken(fakeToken);
+//        fakeToken.setAccessTokenStr("2.003hn22GaV8NND49e6fe7d00DwTiAD");
+//        fakeAccount.setAccessTokenStr(fakeToken);
 //
 //        sAccountLab.addAccount(fakeAccount);
 

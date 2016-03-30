@@ -65,17 +65,17 @@ public class AccountActivity extends ListActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_LOGIN) {
-            String accessTokenStr = data.getStringExtra(LoginActivity.BUNDLE_ACCESS_TOKEN);
-            Long expireIn = data.getLongExtra(LoginActivity.BUNDLE_EXPIRE_IN, -1);
-            AccessToken accessToken = new AccessToken();
-            accessToken.setAccessToken(accessTokenStr);
-            accessToken.setExpiresIn(expireIn);
+            AccessToken accessToken = (AccessToken) data.getSerializableExtra(LoginActivity.BUNDLE_ACCESS_TOKEN);
+//            Long expireIn = data.getLongExtra(LoginActivity.BUNDLE_EXPIRE_IN, -1);
+//            AccessToken accessToken = new AccessToken();
+//            accessToken.setAccessTokenStr(accessTokenStr);
+//            accessToken.setExpiresIn(expireIn);
 
             try {
-                String userId = new FetchUidTask().execute(accessTokenStr).get();
+                String userId = new FetchUidTask().execute(accessToken.getAccessTokenStr()).get();
                 accessToken.setUserId(userId);
                 String[] params = new String[2];
-                params[0] = accessTokenStr;
+                params[0] = accessToken.getAccessTokenStr();
                 params[1] = userId;
                 String jsonData = new FetchUserProfileTask().execute(params).get();
                 User user = parseUser(jsonData);
