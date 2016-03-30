@@ -1,10 +1,14 @@
 package com.nancyberry.wepost.ui.login;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -26,9 +30,14 @@ public class LoginActivity extends Activity {
 
     public static final String TAG = LoginActivity.class.getSimpleName();
 
-    public static final String CLIENT_ID = "2943694874";
-    public static final String CLIENT_SECRET = "3520b6832639b685ddb29dd534048010";
-    public static final String REDIRECT_URI = "https://api.weibo.com/oauth2/default.html";
+//    public static final String CLIENT_ID = "2943694874";
+//    public static final String CLIENT_SECRET = "3520b6832639b685ddb29dd534048010";
+//    public static final String REDIRECT_URI = "https://api.weibo.com/oauth2/default.html";
+
+    public static final String CLIENT_ID = "2362431378";
+    public static final String CLIENT_SECRET = "582ce3cdcdeb8a3b45087073d0dbcadf";
+    public static final String REDIRECT_URI = "http://boyqiang520.s8.csome.cn/oauth2/";
+
     public static final String AUTH_URI = String.format("https://api.weibo.com/oauth2/authorize" +
             "?client_id=%s&redirect_uri=%s", CLIENT_ID, REDIRECT_URI);
     public static final String ACCESS_TOKEN_URI = "https://api.weibo.com/oauth2/access_token";
@@ -48,6 +57,13 @@ public class LoginActivity extends Activity {
         settings.setDomStorageEnabled(true);
 //        settings.setAppCacheEnabled(true);
         settings.setDefaultTextEncodingName("utf-8");
+
+        String weiboCookies = CookieManager.getInstance().getCookie("https://api.weibo.com");
+        Log.d(TAG, "Cookies from https://api.weibo.com: " + weiboCookies);
+        // clear cache and cookie
+        mWebView.clearCache(true);
+        mWebView.clearHistory();
+        clearCookies(this);
 
         Log.d(TAG, "load auth url = " + AUTH_URI);
         mWebView.loadUrl(AUTH_URI);
@@ -82,6 +98,24 @@ public class LoginActivity extends Activity {
 
         });
 
+    }
+
+    @SuppressWarnings("deprecation")
+    public static void clearCookies(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            Log.d(TAG, "Using clearCookies code for API >=" + String.valueOf(Build.VERSION_CODES.LOLLIPOP_MR1));
+            CookieManager.getInstance().removeAllCookies(null);
+            CookieManager.getInstance().flush();
+        } else {
+            Log.d(TAG, "Using clearCookies code for API <" + String.valueOf(Build.VERSION_CODES.LOLLIPOP_MR1));
+            CookieSyncManager cookieSyncMngr=CookieSyncManager.createInstance(context);
+            cookieSyncMngr.startSync();
+            CookieManager cookieManager=CookieManager.getInstance();
+            cookieManager.removeAllCookie();
+            cookieManager.removeSessionCookie();
+            cookieSyncMngr.stopSync();
+            cookieSyncMngr.sync();
+        }
     }
 
     public class AccessTokenTask extends AsyncTask<String, Void, String> {

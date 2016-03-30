@@ -236,6 +236,7 @@ public class AccountActivity extends ListActivity {
             JSONObject jsonObject = new JSONObject(jsonString);
             user.setId(jsonObject.getString("id"));
             user.setScreen_name(jsonObject.getString("screen_name"));
+            user.setDescription(jsonObject.getString("description"));
             user.setProfile_image_url(jsonObject.getString("profile_image_url"));
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
