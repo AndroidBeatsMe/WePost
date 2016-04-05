@@ -10,6 +10,18 @@
         android:label="@string/app_name"
         android:theme="@android:style/Theme.Holo.Light.DarkActionBar"
         android:name="com.nancyberry.wepost.common.context.GlobalContext">
+        <meta-data
+            android:name="CLIENT_ID"
+            android:value="\ 2362431378" />
+        <meta-data
+            android:name="CLIENT_SECRET"
+            android:value="582ce3cdcdeb8a3b45087073d0dbcadf" />
+        <meta-data
+            android:name="REDIRECT_URI"
+            android:value="http://boyqiang520.s8.csome.cn/oauth2/" />
+        <meta-data
+            android:name="BASE_URI"
+            android:value="https://api.weibo.com/2/" />
         <activity
             android:name=".ui.account.AccountActivity"
             android:label="@string/app_name">

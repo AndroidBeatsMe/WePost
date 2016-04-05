@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.nancyberry.wepost.R;
+import com.nancyberry.wepost.sina.Http;
 import com.nancyberry.wepost.support.bean.AccessToken;
 import com.nancyberry.wepost.support.bean.Account;
 import com.nancyberry.wepost.support.bean.User;
@@ -28,10 +29,16 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
+import rx.Observable;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by nan.zhang on 3/29/16.
@@ -41,9 +48,7 @@ public class AccountActivity extends ListActivity {
     public static final int REQUEST_LOGIN = 1;
     private List<Account> mAccountList;
     private AccountAdapter mAccountAdapter;
-
-    public static String ACCOUNT_GET_UID_ = "https://api.weibo.com/2/account/get_uid.json";
-    public static String USERS_SHOW = "https://api.weibo.com/2/users/show.json";
+    private Subscription mSubscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,31 +70,54 @@ public class AccountActivity extends ListActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_LOGIN) {
-            AccessToken accessToken = (AccessToken) data.getSerializableExtra(LoginActivity.BUNDLE_ACCESS_TOKEN);
-//            Long expireIn = data.getLongExtra(LoginActivity.BUNDLE_EXPIRE_IN, -1);
-//            AccessToken accessToken = new AccessToken();
-//            accessToken.setAccessTokenStr(accessTokenStr);
-//            accessToken.setExpiresIn(expireIn);
+            final AccessToken accessToken = (AccessToken) data.getSerializableExtra(LoginActivity.BUNDLE_ACCESS_TOKEN);
 
-            try {
-                String userId = new FetchUidTask().execute(accessToken.getAccessTokenStr()).get();
-                accessToken.setUserId(userId);
-                String[] params = new String[2];
-                params[0] = accessToken.getAccessTokenStr();
-                params[1] = userId;
-                String jsonData = new FetchUserProfileTask().execute(params).get();
-                User user = parseUser(jsonData);
-                Account account = new Account();
-                account.setAccessToken(accessToken);
-                account.setUser(user);
+            mSubscription = Http.getSinaApi()
+                    .getUid(accessToken.getAccessTokenStr())
+                    .map(new Func1<ResponseBody, String>() {
+                        @Override
+                        public String call(ResponseBody responseBody) {
+                            try {
+                                String jsonData = responseBody.string();
+                                JSONObject jsonObject = new JSONObject(jsonData);
+                                return jsonObject.getString("uid");
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    })
+                    .flatMap(new Func1<String, Observable<User>>() {
+                        @Override
+                        public Observable<User> call(String uid) {
+                            return Http.getSinaApi().getUserShow(accessToken.getAccessTokenStr(), uid);
+                        }
+                    })
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<User>() {
+                        @Override
+                        public void onCompleted() {
+                            Log.d(TAG, "onCompleted");
+                        }
 
-                mAccountList.add(account);
+                        @Override
+                        public void onError(Throwable e) {
+                            Log.e(TAG, e.getMessage());
+                        }
 
-                ((AccountAdapter) getListAdapter()).notifyDataSetChanged();
+                        @Override
+                        public void onNext(User user) {
+                            Log.d(TAG, "onNext");
+                            Account account = new Account();
+                            account.setAccessToken(accessToken);
+                            account.setUser(user);
 
-            } catch (Exception e) {
+                            mAccountList.add(account);
 
-            }
+                            ((AccountAdapter) getListAdapter()).notifyDataSetChanged();
+                        }
+                    });
+
         }
     }
 
@@ -151,6 +179,12 @@ public class AccountActivity extends ListActivity {
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mSubscription.unsubscribe();
+    }
+
     public class ImageDownloadTask extends AsyncTask<String, Void, Bitmap> {
         @Override
         protected Bitmap doInBackground(String... params) {
@@ -166,83 +200,4 @@ public class AccountActivity extends ListActivity {
             }
         }
     }
-
-    public class FetchUidTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... params) {
-            OkHttpClient client = new OkHttpClient();
-
-            HttpUrl url = new HttpUrl.Builder()
-                    .scheme("https")
-                    .host("api.weibo.com")
-                    .addPathSegments("2/account/get_uid.json")
-                    .addQueryParameter("access_token", params[0])
-                    .build();
-            Log.d(TAG, "get uid url = " + url.toString());
-
-            Request request = new Request.Builder().url(url).build();
-
-            try {
-                Response response = client.newCall(request).execute();
-                String jsonData = response.body().string();
-                JSONObject jsonObject = new JSONObject(jsonData);
-                String uid = jsonObject.getString("uid");
-                Log.d(TAG, jsonObject.toString());
-
-                return uid;
-
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
-                return null;
-            }
-        }
-    }
-
-
-    public class FetchUserProfileTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... params) {
-            OkHttpClient client = new OkHttpClient();
-
-            HttpUrl url = new HttpUrl.Builder()
-                    .scheme("https")
-                    .host("api.weibo.com")
-                    .addPathSegments("2/users/show.json")
-                    .addQueryParameter("access_token", params[0])
-                    .addQueryParameter("uid", params[1])
-                    .build();
-            Request request = new Request.Builder().url(url).build();
-
-            Log.d(TAG, "user show url = " + url.toString());
-
-            try {
-                Response response = client.newCall(request).execute();
-                String jsonData = response.body().string();
-                Log.d(TAG, new JSONObject(jsonData).toString());
-
-                return jsonData;
-
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
-                return null;
-            }
-        }
-    }
-
-    public User parseUser(String jsonString) {
-        User user = new User();
-
-        try {
-            JSONObject jsonObject = new JSONObject(jsonString);
-            user.setId(jsonObject.getString("id"));
-            user.setScreen_name(jsonObject.getString("screen_name"));
-            user.setDescription(jsonObject.getString("description"));
-            user.setProfile_image_url(jsonObject.getString("profile_image_url"));
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
-        }
-
-        return user;
-    }
-
 }

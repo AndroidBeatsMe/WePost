@@ -1,5 +1,7 @@
 package com.nancyberry.wepost.support.bean;
 
+import com.google.gson.annotations.SerializedName;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -10,21 +12,27 @@ import java.io.Serializable;
  */
 public class AccessToken implements Serializable {
 
-    private String accessTokenStr;
+    private @SerializedName("access_token") String accessTokenStr;
 
     private String userId;
 
-    private long expiresIn;
+    private @SerializedName("expires_in") long expiresIn;
 
     private String appKey;
 
     private String appSecret;
 
-    private long createdAt = System.currentTimeMillis();
+    private long createdAt;
+
+    // Must override this! It seems like Gson will call this constructor to initialize instance.
+    public AccessToken() {
+        this.createdAt = System.currentTimeMillis();
+    }
 
     public AccessToken(String accessTokenStr, long expiresIn) {
         this.accessTokenStr = accessTokenStr;
         this.expiresIn = expiresIn;
+        this.createdAt = System.currentTimeMillis();
     }
 
 
@@ -87,5 +95,16 @@ public class AccessToken implements Serializable {
 
         JSONObject jsonObject = (JSONObject) jsonValue;
         return new AccessToken(jsonObject.getString("access_token"), jsonObject.getLong("expires_in"));
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("Token = {access_token: ").append(accessTokenStr)
+                .append(", created_at: ").append(createdAt)
+                .append(", expires_in: ").append(expiresIn).append("}");
+
+        return stringBuilder.toString();
     }
 }

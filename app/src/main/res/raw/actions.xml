@@ -23,6 +23,17 @@
 		<value>https://api.weibo.com/2/</value>
 	</setting>
 
+	<setting type="authorize">
+		<des>OAuth认证</des>
+		<value>authorize</value>
+		<extras>
+			<extra type="base_url">
+				<des>OAuth地址</des>
+				<value>https://api.weibo.com/oauth2/</value>
+			</extra>
+		</extras>
+	</setting>
+
 	<setting type="access_token">
 		<des>获取Token的地址</des>
 		<value>access_token</value>

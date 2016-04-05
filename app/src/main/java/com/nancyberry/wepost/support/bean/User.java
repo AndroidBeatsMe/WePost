@@ -1,5 +1,7 @@
 package com.nancyberry.wepost.support.bean;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 /**
@@ -12,19 +14,19 @@ public class User implements Serializable {
     /**
      * 用户UID
      */
-    private String id;
+    @SerializedName("id") private String id;
 
-    private String idstr;
+    @SerializedName("idstr") private String idstr;
 
     /**
      * 微博昵称
      */
-    private String screen_name;
+    @SerializedName("screen_name") private String screen_name;
 
     /**
      * 友好显示名称，同微博昵称
      */
-    private String name;
+    @SerializedName("name") private String name;
 
     /**
      * 省份编码（参考省份编码表）
@@ -44,7 +46,7 @@ public class User implements Serializable {
     /**
      * 个人描述
      */
-    private String description;
+    @SerializedName("description") private String description;
 
     /**
      * 用户博客地址
@@ -54,7 +56,7 @@ public class User implements Serializable {
     /**
      * 自定义图像
      */
-    private String profile_image_url;
+    @SerializedName("profile_image_url") private String profile_image_url;
 
     /**
      * 用户个性化URL

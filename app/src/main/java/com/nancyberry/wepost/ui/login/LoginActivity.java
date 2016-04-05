@@ -3,7 +3,6 @@ package com.nancyberry.wepost.ui.login;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,16 +11,17 @@ import android.webkit.CookieSyncManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import com.nancyberry.wepost.R;
-import com.nancyberry.wepost.sina.SinaSdk;
+import com.nancyberry.wepost.common.context.GlobalContext;
+import com.nancyberry.wepost.sina.Http;
 import com.nancyberry.wepost.support.bean.AccessToken;
 
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by nan.zhang on 3/28/16.
@@ -30,22 +30,15 @@ public class LoginActivity extends Activity {
 
     public static final String TAG = LoginActivity.class.getSimpleName();
 
-//    public static final String CLIENT_ID = "2943694874";
-//    public static final String CLIENT_SECRET = "3520b6832639b685ddb29dd534048010";
-//    public static final String REDIRECT_URI = "https://api.weibo.com/oauth2/default.html";
-
-    public static final String CLIENT_ID = "2362431378";
-    public static final String CLIENT_SECRET = "582ce3cdcdeb8a3b45087073d0dbcadf";
-    public static final String REDIRECT_URI = "http://boyqiang520.s8.csome.cn/oauth2/";
-
-    public static final String AUTH_URI = String.format("https://api.weibo.com/oauth2/authorize" +
-            "?client_id=%s&redirect_uri=%s", CLIENT_ID, REDIRECT_URI);
-    public static final String ACCESS_TOKEN_URI = "https://api.weibo.com/oauth2/access_token";
+    public static final String AUTH_URI = String.format(
+            "https://api.weibo.com/oauth2/authorize?client_id=%s&redirect_uri=%s",
+            GlobalContext.getInstance().CLIENT_ID, GlobalContext.getInstance().REDIRECT_URI);
 
     public static final String BUNDLE_ACCESS_TOKEN = "access_token";
-//    public static final String BUNDLE_EXPIRE_IN = "expires_in";
 
     private WebView mWebView;
+
+    private Subscription mSubscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,23 +69,39 @@ public class LoginActivity extends Activity {
                 Log.d(TAG, "code = " + code);
                 view.loadUrl(url);
 
-                try {
-                    SinaSdk sinaSdk = SinaSdk.getInstance(null);
-                    AccessToken accessToken = sinaSdk.fetchAccessToken(code);
+                mSubscription = Http.getSinaApi()
+                        .getAccessToken(
+                                GlobalContext.getInstance().CLIENT_ID,
+                                GlobalContext.getInstance().CLIENT_SECRET,
+                                "authorization_code",
+                                code,
+                                GlobalContext.getInstance().REDIRECT_URI)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Observer<AccessToken>() {
+                            @Override
+                            public void onCompleted() {
+                                Log.d(TAG, "getAccessToken completed!");
+                            }
 
-                    if (accessToken == null) {
-                        Log.e(TAG, "error getting access token!");
-                        return false;
-                    }
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.d(TAG, "getAccessToken failed!");
+                                Toast.makeText(LoginActivity.this, "getAccessToken failed!", Toast.LENGTH_SHORT).show();
+                            }
 
-                    Intent intent = new Intent();
-                    intent.putExtra(BUNDLE_ACCESS_TOKEN, accessToken);
-                    setResult(Activity.RESULT_OK, intent);
-                    LoginActivity.this.finish();
+                            @Override
+                            public void onNext(AccessToken accessToken) {
+                                Log.d(TAG, "getAccessToken onNext called! " + accessToken);
+                                Toast.makeText(LoginActivity.this, "getAccessToken succeeded!", Toast.LENGTH_SHORT).show();
 
-                } catch (Exception ie) {
-                    Log.e(TAG, ie.getMessage());
-                }
+                                Intent intent = new Intent();
+                                intent.putExtra(BUNDLE_ACCESS_TOKEN, accessToken);
+                                setResult(Activity.RESULT_OK, intent);
+                                LoginActivity.this.finish();
+                            }
+                        });
+
 
                 return true;
             }
@@ -119,32 +128,9 @@ public class LoginActivity extends Activity {
         }
     }
 
-    public class AccessTokenTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... params) {
-            OkHttpClient client = new OkHttpClient();
-
-            RequestBody formBody = new FormBody.Builder().add("client_id", CLIENT_ID)
-                    .add("client_secret", CLIENT_SECRET)
-                    .add("grant_type", "authorization_code")
-                    .add("code", params[0])
-                    .add("redirect_uri", REDIRECT_URI).build();
-
-            Request request = new Request.Builder()
-                    .url(ACCESS_TOKEN_URI)
-                    .post(formBody)
-                    .build();
-
-            try {
-                Response response = client.newCall(request).execute();
-                String jsonData = response.body().string();
-                return jsonData;
-
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
-                return null;
-            }
-        }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mSubscription.unsubscribe();
     }
-
 }
