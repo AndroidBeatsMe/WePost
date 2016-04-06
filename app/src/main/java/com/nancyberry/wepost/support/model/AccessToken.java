@@ -1,4 +1,4 @@
-package com.nancyberry.wepost.support.bean;
+package com.nancyberry.wepost.support.model;
 
 import com.google.gson.annotations.SerializedName;
 

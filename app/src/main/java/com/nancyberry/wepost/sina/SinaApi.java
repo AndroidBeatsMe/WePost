@@ -1,7 +1,8 @@
 package com.nancyberry.wepost.sina;
 
-import com.nancyberry.wepost.support.bean.AccessToken;
-import com.nancyberry.wepost.support.bean.User;
+import com.nancyberry.wepost.support.model.AccessToken;
+import com.nancyberry.wepost.support.model.StatusContent;
+import com.nancyberry.wepost.support.model.User;
 
 import okhttp3.ResponseBody;
 import retrofit2.http.Field;
@@ -33,5 +34,11 @@ public interface SinaApi {
     Observable<User> getUserShow(
             @Query("access_token") String accessToken,
             @Query("uid") String uid);
+
+    @GET("statuses/friends_timeline.json")
+    Observable<StatusContent.StatusContentList> getFriendsTimeline(
+            @Query("access_token") String accessToken,
+            @Query("count") int count
+    );
 
 }

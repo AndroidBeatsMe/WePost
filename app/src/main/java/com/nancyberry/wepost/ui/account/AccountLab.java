@@ -2,7 +2,9 @@ package com.nancyberry.wepost.ui.account;
 
 import android.content.Context;
 
-import com.nancyberry.wepost.support.bean.Account;
+import com.nancyberry.wepost.support.model.AccessToken;
+import com.nancyberry.wepost.support.model.Account;
+import com.nancyberry.wepost.support.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,17 +29,19 @@ public class AccountLab {
             sAccountLab = new AccountLab(context.getApplicationContext());
         }
 
-//        Account fakeAccount = new Account();
-//        User fakeUser = new User();
-//        fakeUser.setProfile_image_url("http://tp1.sinaimg.cn/5812295980/50/5746319708/0");
-//        fakeUser.setScreen_name("虾米南瓜球");
-//        fakeUser.setDescription("hehe");
-//        fakeAccount.setUser(fakeUser);
-//        AccessToken fakeToken = new AccessToken();
-//        fakeToken.setAccessTokenStr("2.003hn22GaV8NND49e6fe7d00DwTiAD");
-//        fakeAccount.setAccessTokenStr(fakeToken);
-//
-//        sAccountLab.addAccount(fakeAccount);
+        // TODO: find a better way to store accounts
+        Account fakeAccount = new Account();
+        User fakeUser = new User();
+        fakeUser.setProfileImageUrl("http://tp1.sinaimg.cn/5812295980/50/5746319708/0");
+        fakeUser.setScreenName("虾米南瓜球");
+        fakeUser.setDescription("hehe");
+        fakeAccount.setUser(fakeUser);
+        AccessToken fakeToken = new AccessToken();
+        fakeToken.setAccessTokenStr("2.003hn22Gu_WsZC293476e02b072ZTF");
+        fakeToken.setExpiresIn(662307);
+        fakeAccount.setAccessToken(fakeToken);
+
+        sAccountLab.addAccount(fakeAccount);
 
         return sAccountLab;
     }

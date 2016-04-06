@@ -1,11 +1,12 @@
-package com.nancyberry.wepost.support.bean;
+package com.nancyberry.wepost.support.model;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 /**
  * Created by nan.zhang on 3/29/16.
  */
-public class Account {
+public class Account implements Serializable {
 
     private UUID id;
 

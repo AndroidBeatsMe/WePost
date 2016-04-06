@@ -13,14 +13,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.nancyberry.wepost.R;
 import com.nancyberry.wepost.sina.Http;
-import com.nancyberry.wepost.support.bean.AccessToken;
-import com.nancyberry.wepost.support.bean.Account;
-import com.nancyberry.wepost.support.bean.User;
+import com.nancyberry.wepost.support.model.AccessToken;
+import com.nancyberry.wepost.support.model.Account;
+import com.nancyberry.wepost.support.model.User;
 import com.nancyberry.wepost.ui.login.LoginActivity;
+import com.nancyberry.wepost.ui.timeline.FriendTimelineActivity;
 
 import org.json.JSONObject;
 
@@ -72,6 +74,7 @@ public class AccountActivity extends ListActivity {
         if (requestCode == REQUEST_LOGIN) {
             final AccessToken accessToken = (AccessToken) data.getSerializableExtra(LoginActivity.BUNDLE_ACCESS_TOKEN);
 
+            // TODO: refactor, flatMap seems not right
             mSubscription = Http.getSinaApi()
                     .getUid(accessToken.getAccessTokenStr())
                     .map(new Func1<ResponseBody, String>() {
@@ -159,14 +162,14 @@ public class AccountActivity extends ListActivity {
             TextView tokenInfoTextView = (TextView) convertView.findViewById(R.id.text_token_info);
             ImageView avatarImage = (ImageView) convertView.findViewById(R.id.img_avatar);
 
-            nameTextView.setText(account.getUser().getScreen_name());
+            nameTextView.setText(account.getUser().getScreenName());
             descTextView.setText(account.getUser().getDescription());
             if (!account.getAccessToken().isExpired()) {
                 tokenInfoTextView.setVisibility(View.INVISIBLE);
             }
 
             try {
-                Bitmap avatar = new ImageDownloadTask().execute(account.getUser().getProfile_image_url()).get();
+                Bitmap avatar = new ImageDownloadTask().execute(account.getUser().getProfileImageUrl()).get();
                 avatarImage.setImageBitmap(avatar);
             } catch (InterruptedException ie) {
                 Log.e(TAG, ie.getMessage());
@@ -185,6 +188,13 @@ public class AccountActivity extends ListActivity {
         mSubscription.unsubscribe();
     }
 
+    @Override
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        Account account = ((AccountAdapter) getListAdapter()).getItem(position);
+        FriendTimelineActivity.actionStart(this, account);
+    }
+
+    // TODO: needs refactor
     public class ImageDownloadTask extends AsyncTask<String, Void, Bitmap> {
         @Override
         protected Bitmap doInBackground(String... params) {
