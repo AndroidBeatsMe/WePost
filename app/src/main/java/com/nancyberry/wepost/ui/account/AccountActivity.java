@@ -1,6 +1,6 @@
 package com.nancyberry.wepost.ui.account;
 
-import android.app.ListActivity;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -31,6 +32,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -45,28 +48,40 @@ import rx.schedulers.Schedulers;
 /**
  * Created by nan.zhang on 3/29/16.
  */
-public class AccountActivity extends ListActivity {
+public class AccountActivity extends Activity {
     public static final String TAG = AccountActivity.class.getSimpleName();
     public static final int REQUEST_LOGIN = 1;
     private List<Account> mAccountList;
     private AccountAdapter mAccountAdapter;
     private Subscription mSubscription;
 
+    @Bind(R.id.account_listview)
+    ListView mListView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle(R.string.account_page_title);
         setContentView(R.layout.activity_account);
+        ButterKnife.bind(this);
         mAccountList = AccountLab.get(this).getAccountList();
         mAccountAdapter = new AccountAdapter(mAccountList);
-        setListAdapter(mAccountAdapter);
+        mListView.setAdapter(mAccountAdapter);
 
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                Account account = ((AccountAdapter) mListView.getAdapter()).getItem(position);
+                Account account = (Account) parent.getItemAtPosition(position);
+                FriendTimelineActivity.actionStart(AccountActivity.this, account);
+            }
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        ((AccountAdapter) getListAdapter()).notifyDataSetChanged();
+        ((AccountAdapter) mListView.getAdapter()).notifyDataSetChanged();
     }
 
     @Override
@@ -117,7 +132,7 @@ public class AccountActivity extends ListActivity {
 
                             mAccountList.add(account);
 
-                            ((AccountAdapter) getListAdapter()).notifyDataSetChanged();
+                            ((AccountAdapter) mListView.getAdapter()).notifyDataSetChanged();
                         }
                     });
 
@@ -143,7 +158,7 @@ public class AccountActivity extends ListActivity {
         }
     }
 
-    private class AccountAdapter extends ArrayAdapter<Account> {
+    public class AccountAdapter extends ArrayAdapter<Account> {
 
         public AccountAdapter(List<Account> accountList) {
             super(AccountActivity.this, 0, accountList);
@@ -151,47 +166,57 @@ public class AccountActivity extends ListActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            Account account = getItem(position);
+            View view;
+            ViewHolder viewHolder;
+
             if (convertView == null) {
-                convertView = AccountActivity.this.getLayoutInflater().inflate(R.layout.item_account, null);
+                view = AccountActivity.this.getLayoutInflater().inflate(R.layout.item_account, null);
+                viewHolder = new ViewHolder(view);
+                view.setTag(viewHolder);
+            } else {
+                view = convertView;
+                viewHolder = (ViewHolder) view.getTag();
             }
 
-            Account account = getItem(position);
-
-            TextView nameTextView = (TextView) convertView.findViewById(R.id.text_name);
-            TextView descTextView = (TextView) convertView.findViewById(R.id.text_desc);
-            TextView tokenInfoTextView = (TextView) convertView.findViewById(R.id.text_token_info);
-            ImageView avatarImage = (ImageView) convertView.findViewById(R.id.img_avatar);
-
-            nameTextView.setText(account.getUser().getScreenName());
-            descTextView.setText(account.getUser().getDescription());
+            viewHolder.name.setText(account.getUser().getScreenName());
+            viewHolder.desc.setText(account.getUser().getDescription());
             if (!account.getAccessToken().isExpired()) {
-                tokenInfoTextView.setVisibility(View.INVISIBLE);
+                viewHolder.tokenInfo.setVisibility(View.INVISIBLE);
             }
 
             try {
                 Bitmap avatar = new ImageDownloadTask().execute(account.getUser().getProfileImageUrl()).get();
-                avatarImage.setImageBitmap(avatar);
+                viewHolder.avatar.setImageBitmap(avatar);
             } catch (InterruptedException ie) {
                 Log.e(TAG, ie.getMessage());
             } catch (ExecutionException ee) {
                 Log.e(TAG, ee.getMessage());
             }
 
-            return convertView;
+            return view;
         }
 
+        class ViewHolder {
+            @Bind(R.id.text_name)
+            TextView name;
+            @Bind(R.id.text_desc)
+            TextView desc;
+            @Bind(R.id.text_token_info)
+            TextView tokenInfo;
+            @Bind(R.id.img_avatar)
+            ImageView avatar;
+
+            public ViewHolder(View view) {
+                ButterKnife.bind(this, view);
+            }
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mSubscription.unsubscribe();
-    }
-
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        Account account = ((AccountAdapter) getListAdapter()).getItem(position);
-        FriendTimelineActivity.actionStart(this, account);
     }
 
     // TODO: needs refactor

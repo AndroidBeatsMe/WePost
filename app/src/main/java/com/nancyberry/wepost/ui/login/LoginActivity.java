@@ -16,8 +16,9 @@ import android.widget.Toast;
 import com.nancyberry.wepost.R;
 import com.nancyberry.wepost.common.context.GlobalContext;
 import com.nancyberry.wepost.sina.Http;
-import com.nancyberry.wepost.support.bean.AccessToken;
+import com.nancyberry.wepost.support.model.AccessToken;
 
+import butterknife.Bind;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -30,13 +31,14 @@ public class LoginActivity extends Activity {
 
     public static final String TAG = LoginActivity.class.getSimpleName();
 
+    @Bind(R.id.login_webview)
+    WebView webView;
+
     public static final String AUTH_URI = String.format(
             "https://api.weibo.com/oauth2/authorize?client_id=%s&redirect_uri=%s",
             GlobalContext.getInstance().CLIENT_ID, GlobalContext.getInstance().REDIRECT_URI);
 
     public static final String BUNDLE_ACCESS_TOKEN = "access_token";
-
-    private WebView mWebView;
 
     private Subscription mSubscription;
 
@@ -44,8 +46,8 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        mWebView = (WebView) findViewById(R.id.login_webview);
-        WebSettings settings = mWebView.getSettings();
+        webView = (WebView) findViewById(R.id.login_webview);
+        WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);    // must be enabled if the page contains js
         settings.setDomStorageEnabled(true);
 //        settings.setAppCacheEnabled(true);
@@ -54,14 +56,14 @@ public class LoginActivity extends Activity {
         String weiboCookies = CookieManager.getInstance().getCookie("https://api.weibo.com");
         Log.d(TAG, "Cookies from https://api.weibo.com: " + weiboCookies);
         // clear cache and cookie
-        mWebView.clearCache(true);
-        mWebView.clearHistory();
+        webView.clearCache(true);
+        webView.clearHistory();
         clearCookies(this);
 
         Log.d(TAG, "load auth url = " + AUTH_URI);
-        mWebView.loadUrl(AUTH_URI);
+        webView.loadUrl(AUTH_URI);
 
-        mWebView.setWebViewClient(new WebViewClient() {
+        webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, final String url) {   // this function will be called when user clicks a link
                 Log.d(TAG, "url = " + url);
@@ -118,9 +120,9 @@ public class LoginActivity extends Activity {
             CookieManager.getInstance().flush();
         } else {
             Log.d(TAG, "Using clearCookies code for API <" + String.valueOf(Build.VERSION_CODES.LOLLIPOP_MR1));
-            CookieSyncManager cookieSyncMngr=CookieSyncManager.createInstance(context);
+            CookieSyncManager cookieSyncMngr = CookieSyncManager.createInstance(context);
             cookieSyncMngr.startSync();
-            CookieManager cookieManager=CookieManager.getInstance();
+            CookieManager cookieManager = CookieManager.getInstance();
             cookieManager.removeAllCookie();
             cookieManager.removeSessionCookie();
             cookieSyncMngr.stopSync();
