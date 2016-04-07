@@ -2,9 +2,6 @@ package com.nancyberry.wepost.ui.account;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -17,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.nancyberry.wepost.R;
 import com.nancyberry.wepost.sina.Http;
 import com.nancyberry.wepost.support.model.AccessToken;
@@ -26,16 +24,10 @@ import com.nancyberry.wepost.support.model.User;
 import com.nancyberry.wepost.ui.login.LoginActivity;
 import com.nancyberry.wepost.ui.timeline.FriendTimelineActivity;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -169,14 +161,12 @@ public class AccountActivity extends Activity {
                 viewHolder.tokenInfo.setVisibility(View.INVISIBLE);
             }
 
-            try {
-                Bitmap avatar = new ImageDownloadTask().execute(account.getUser().getProfileImageUrl()).get();
-                viewHolder.avatar.setImageBitmap(avatar);
-            } catch (InterruptedException ie) {
-                Log.e(TAG, ie.getMessage());
-            } catch (ExecutionException ee) {
-                Log.e(TAG, ee.getMessage());
-            }
+            Glide.with(AccountActivity.this)
+                    .load(account.getUser().getProfileImageUrl())
+                    .centerCrop()
+                    .placeholder(R.drawable.spinner_default_holo_light_am)
+                    .crossFade()
+                    .into(viewHolder.avatar);
 
             return view;
         }
@@ -201,22 +191,5 @@ public class AccountActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         mSubscription.unsubscribe();
-    }
-
-    // TODO: needs refactor
-    public class ImageDownloadTask extends AsyncTask<String, Void, Bitmap> {
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            OkHttpClient client = new OkHttpClient();
-            Request request = new Request.Builder().url(params[0]).addHeader("Content-Type", "application/json").build();
-            try {
-                Response response = client.newCall(request).execute();
-                InputStream is = response.body().byteStream();
-                return BitmapFactory.decodeStream(is);
-            } catch (IOException ie) {
-                Log.e(TAG, ie.getMessage());
-                return null;
-            }
-        }
     }
 }
