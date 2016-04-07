@@ -21,11 +21,10 @@ import com.nancyberry.wepost.R;
 import com.nancyberry.wepost.sina.Http;
 import com.nancyberry.wepost.support.model.AccessToken;
 import com.nancyberry.wepost.support.model.Account;
+import com.nancyberry.wepost.support.model.Uid;
 import com.nancyberry.wepost.support.model.User;
 import com.nancyberry.wepost.ui.login.LoginActivity;
 import com.nancyberry.wepost.ui.timeline.FriendTimelineActivity;
-
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +36,6 @@ import butterknife.ButterKnife;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -89,25 +87,12 @@ public class AccountActivity extends Activity {
         if (requestCode == REQUEST_LOGIN) {
             final AccessToken accessToken = (AccessToken) data.getSerializableExtra(LoginActivity.BUNDLE_ACCESS_TOKEN);
 
-            // TODO: refactor, flatMap seems not right
             mSubscription = Http.getSinaApi()
                     .getUid(accessToken.getAccessTokenStr())
-                    .map(new Func1<ResponseBody, String>() {
+                    .flatMap(new Func1<Uid, Observable<User>>() {
                         @Override
-                        public String call(ResponseBody responseBody) {
-                            try {
-                                String jsonData = responseBody.string();
-                                JSONObject jsonObject = new JSONObject(jsonData);
-                                return jsonObject.getString("uid");
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    })
-                    .flatMap(new Func1<String, Observable<User>>() {
-                        @Override
-                        public Observable<User> call(String uid) {
-                            return Http.getSinaApi().getUserShow(accessToken.getAccessTokenStr(), uid);
+                        public Observable<User> call(Uid uid) {
+                            return Http.getSinaApi().getUserShow(accessToken.getAccessTokenStr(), uid.getValue());
                         }
                     })
                     .subscribeOn(Schedulers.io())

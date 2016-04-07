@@ -38,9 +38,8 @@ public class AccountLab {
         fakeAccount.setUser(fakeUser);
         AccessToken fakeToken = new AccessToken();
         fakeToken.setAccessTokenStr("2.003hn22Gu_WsZC293476e02b072ZTF");
-        fakeToken.setExpiresIn(662307);
+        fakeToken.setExpiresIn(665192);
         fakeAccount.setAccessToken(fakeToken);
-
         sAccountLab.addAccount(fakeAccount);
 
         return sAccountLab;
