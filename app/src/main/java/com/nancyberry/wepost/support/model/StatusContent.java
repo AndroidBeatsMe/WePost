@@ -1,19 +1,3 @@
-//package com.nancyberry.wepost.support.model;
-//
-//import com.google.gson.annotations.SerializedName;
-//
-//public class StatusContent {
-//
-//    @SerializedName("created_at")
-//    //    @Expose
-//    private String createdAt;
-//    @SerializedName("id")
-//    //    @Expose
-//    private Long id;
-//
-//
-//}
-
 package com.nancyberry.wepost.support.model;
 
 import com.google.gson.annotations.SerializedName;
@@ -22,19 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StatusContent {
-
-    public class StatusContentList {
-        public List<StatusContent> getStatusContentList() {
-            return statusContentList;
-        }
-
-        public void setStatusContentList(List<StatusContent> statusContentList) {
-            this.statusContentList = statusContentList;
-        }
-
-        @SerializedName("statuses")
-        public List<StatusContent> statusContentList;
-    }
 
     @SerializedName("created_at")
    //    @Expose
@@ -129,6 +100,10 @@ public class StatusContent {
     @SerializedName("cardid")
    //    @Expose
     private String cardid;
+
+    public String formatDesc() {
+        return source;
+    }
 
     /**
      *

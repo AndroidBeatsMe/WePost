@@ -1,7 +1,7 @@
 package com.nancyberry.wepost.sina;
 
 import com.nancyberry.wepost.support.model.AccessToken;
-import com.nancyberry.wepost.support.model.StatusContent;
+import com.nancyberry.wepost.support.model.StatusContentList;
 import com.nancyberry.wepost.support.model.Uid;
 import com.nancyberry.wepost.support.model.User;
 
@@ -36,7 +36,7 @@ public interface SinaApi {
             @Query("uid") String uid);
 
     @GET("statuses/friends_timeline.json")
-    Observable<StatusContent.StatusContentList> getFriendsTimeline(
+    Observable<StatusContentList> getFriendsTimeline(
             @Query("access_token") String accessToken,
             @Query("count") int count
     );

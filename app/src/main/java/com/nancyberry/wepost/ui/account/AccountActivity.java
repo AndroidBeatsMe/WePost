@@ -69,7 +69,6 @@ public class AccountActivity extends Activity {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Account account = ((AccountAdapter) mListView.getAdapter()).getItem(position);
                 Account account = (Account) parent.getItemAtPosition(position);
                 FriendTimelineActivity.actionStart(AccountActivity.this, account);
             }
