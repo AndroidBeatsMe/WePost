@@ -22,21 +22,23 @@ public class Http {
     public static SinaApi getSinaApi() {
         if (sinaApi == null) {
             synchronized (Http.class) {
-                HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-                interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+                if (sinaApi == null) {
+                    HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+                    interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 //                okHttpClient = new OkHttpClient();
-                // add logging as interceptor
-                okHttpClient = new OkHttpClient.Builder().addInterceptor(interceptor).build();
-                gsonConverterFactory = GsonConverterFactory.create();
-                rxJavaCallAdapterFactory = RxJavaCallAdapterFactory.create();
+                    // add logging as interceptor
+                    okHttpClient = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+                    gsonConverterFactory = GsonConverterFactory.create();
+                    rxJavaCallAdapterFactory = RxJavaCallAdapterFactory.create();
 
-                Retrofit retrofit = new Retrofit.Builder()
-                        .client(okHttpClient)
-                        .baseUrl(GlobalContext.getInstance().BASE_URI)
-                        .addConverterFactory(gsonConverterFactory)
-                        .addCallAdapterFactory(rxJavaCallAdapterFactory)
-                        .build();
-                sinaApi = retrofit.create(SinaApi.class);
+                    Retrofit retrofit = new Retrofit.Builder()
+                            .client(okHttpClient)
+                            .baseUrl(GlobalContext.getInstance().BASE_URI)
+                            .addConverterFactory(gsonConverterFactory)
+                            .addCallAdapterFactory(rxJavaCallAdapterFactory)
+                            .build();
+                    sinaApi = retrofit.create(SinaApi.class);
+                }
             }
         }
 
