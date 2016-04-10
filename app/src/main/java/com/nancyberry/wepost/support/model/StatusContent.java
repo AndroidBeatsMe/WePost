@@ -48,7 +48,13 @@ public class StatusContent {
     private String inReplyToScreenName;
     @SerializedName("pic_urls")
    //    @Expose
-    private List<Object> picUrls = new ArrayList<Object>();
+    private List<PicUrl> picUrls = new ArrayList<>();
+    @SerializedName("thumbnail_pic")
+    private String thumbnailPic;
+    @SerializedName("bmiddle_pic")
+    private String bmiddlePic;
+    @SerializedName("original_pic")
+    private String originalPic;
     @SerializedName("geo")
    //    @Expose
     private Object geo;
@@ -344,7 +350,7 @@ public class StatusContent {
      * @return
      * The picUrls
      */
-    public List<Object> getPicUrls() {
+    public List<PicUrl> getPicUrls() {
         return picUrls;
     }
 
@@ -353,7 +359,7 @@ public class StatusContent {
      * @param picUrls
      * The pic_urls
      */
-    public void setPicUrls(List<Object> picUrls) {
+    public void setPicUrls(List<PicUrl> picUrls) {
         this.picUrls = picUrls;
     }
 
@@ -663,4 +669,27 @@ public class StatusContent {
         this.cardid = cardid;
     }
 
+    public String getThumbnailPic() {
+        return thumbnailPic;
+    }
+
+    public void setThumbnailPic(String thumbnailPic) {
+        this.thumbnailPic = thumbnailPic;
+    }
+
+    public String getBmiddlePic() {
+        return bmiddlePic;
+    }
+
+    public void setBmiddlePic(String bmiddlePic) {
+        this.bmiddlePic = bmiddlePic;
+    }
+
+    public String getOriginalPic() {
+        return originalPic;
+    }
+
+    public void setOriginalPic(String originalPic) {
+        this.originalPic = originalPic;
+    }
 }

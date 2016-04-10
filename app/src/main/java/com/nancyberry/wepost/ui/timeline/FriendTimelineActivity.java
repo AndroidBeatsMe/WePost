@@ -12,14 +12,17 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.nancyberry.wepost.R;
 import com.nancyberry.wepost.common.util.StringUtils;
 import com.nancyberry.wepost.sina.Http;
 import com.nancyberry.wepost.support.model.Account;
 import com.nancyberry.wepost.support.model.StatusContent;
 import com.nancyberry.wepost.support.model.StatusContentList;
+import com.nancyberry.wepost.ui.widget.NineGridLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +60,7 @@ public class FriendTimelineActivity extends Activity {
         listView.setAdapter(adapter);
 
         mSubscription = Http.getSinaApi()
-                .getFriendsTimeline(account.getAccessToken().getAccessTokenStr(), 10)
+                .getFriendsTimeline(account.getAccessToken().getAccessTokenStr(), 100)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<StatusContentList>() {
@@ -134,6 +137,13 @@ public class FriendTimelineActivity extends Activity {
 
             viewHolder.name.setText(statusContent.getUser().getScreenName());
 
+            Glide.with(FriendTimelineActivity.this)
+                    .load(statusContent.getUser().getProfileImageUrl())
+                    .centerCrop()
+//                    .placeholder(R.color.comm_gray)
+                    .crossFade()
+                    .into(viewHolder.avatar);
+
             // desc
             String createdAt = "";
             if (!TextUtils.isEmpty(statusContent.getCreatedAt())) {
@@ -149,6 +159,21 @@ public class FriendTimelineActivity extends Activity {
             viewHolder.attitudesCount.setText(String.valueOf(statusContent.getAttitudesCount()));
             viewHolder.repostsCount.setText(String.valueOf(statusContent.getRepostsCount()));
             viewHolder.commentsCount.setText(String.valueOf(statusContent.getCommentsCount()));
+
+            // repost
+            if (statusContent.getRetweetedStatus() == null) {
+                viewHolder.repostLayout.setVisibility(View.GONE);
+            } else {
+                viewHolder.repostLayout.setVisibility(View.VISIBLE);
+                // TODO parse repost status
+            }
+
+            if (statusContent.getPicUrls().isEmpty()) {
+                viewHolder.pics.setVisibility(View.GONE);
+            } else {
+                viewHolder.pics.setVisibility(View.VISIBLE);
+                viewHolder.pics.setImageData(statusContent.getPicUrls());
+            }
 
             return view;
         }
@@ -168,7 +193,14 @@ public class FriendTimelineActivity extends Activity {
             TextView repostsCount;
             @Bind(R.id.text_comments_count)
             TextView commentsCount;
-
+            @Bind(R.id.img_pics)
+            NineGridLayout pics;
+            @Bind(R.id.layout_repost)
+            RelativeLayout repostLayout;
+            @Bind(R.id.repost_divider)
+            View repostDivider;
+            @Bind(R.id.txt_repost_content)
+            TextView repostContent;
 
             public ViewHolder(View view) {
                 ButterKnife.bind(this, view);
