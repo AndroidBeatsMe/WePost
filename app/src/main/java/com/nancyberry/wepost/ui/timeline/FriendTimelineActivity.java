@@ -160,19 +160,34 @@ public class FriendTimelineActivity extends Activity {
             viewHolder.repostsCount.setText(String.valueOf(statusContent.getRepostsCount()));
             viewHolder.commentsCount.setText(String.valueOf(statusContent.getCommentsCount()));
 
+            StatusContent picStatusContent = statusContent;
+
             // repost
             if (statusContent.getRetweetedStatus() == null) {
                 viewHolder.repostLayout.setVisibility(View.GONE);
             } else {
+                StatusContent repostStatusContent = statusContent.getRetweetedStatus();
                 viewHolder.repostLayout.setVisibility(View.VISIBLE);
-                // TODO parse repost status
+                StringBuilder repostText = new StringBuilder();
+
+                if (repostStatusContent.getUser() != null) {
+                    repostText
+                            .append("@")
+                            .append(repostStatusContent.getUser().getScreenName())
+                            .append(": ");
+                }
+
+                repostText.append(repostStatusContent.getText());
+                viewHolder.repostContent.setText(repostText);
+                picStatusContent = repostStatusContent;
             }
 
-            if (statusContent.getPicUrls().isEmpty()) {
+
+            if (picStatusContent.getPicUrls().isEmpty()) {
                 viewHolder.pics.setVisibility(View.GONE);
             } else {
                 viewHolder.pics.setVisibility(View.VISIBLE);
-                viewHolder.pics.setImageData(statusContent.getPicUrls());
+                viewHolder.pics.setImageData(picStatusContent.getPicUrls());
             }
 
             return view;
