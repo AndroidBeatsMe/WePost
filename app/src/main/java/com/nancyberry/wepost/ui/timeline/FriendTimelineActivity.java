@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
@@ -46,9 +47,13 @@ public class FriendTimelineActivity extends Activity {
     private Subscription mSubscription;
     private List<StatusContent> statusContentList;
     private FriendTimelineAdapter adapter;
-    private int pageCount = 0;
+    private static final int statusesCountPerPage = 20;
+    private int pagesCount = 0;
     private boolean isLoading = false;
+    private String token;
 
+    @Bind(R.id.swipe_refresh_layout)
+    SwipeRefreshLayout swipeRefreshLayout;
     @Bind(R.id.listview)
     ListView listView;
 
@@ -60,14 +65,19 @@ public class FriendTimelineActivity extends Activity {
         ButterKnife.bind(this);
 
         Account account = (Account) getIntent().getSerializableExtra(BUNDLE_ACCOUNT);
+        token = account.getAccessToken().getValue();
         statusContentList = new ArrayList<>();
         adapter = new FriendTimelineAdapter(statusContentList);
         listView.setAdapter(adapter);
+        loadMore();
 
-        final Map<String, Object> queryMap = new HashMap<>();
-        queryMap.put("access_token", account.getAccessToken().getValue());
-        queryMap.put("page", ++pageCount);
-        load(queryMap);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Log.d(TAG, "refreshing...");
+                refresh();
+            }
+        });
 
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
@@ -78,12 +88,11 @@ public class FriendTimelineActivity extends Activity {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount > 0) {
-                    // need to load more
+                    // need to loadMore more
                     if (!isLoading) {
-                        Log.d(TAG, "load page " + (pageCount + 1));
+                        Log.d(TAG, "loadMore page " + (pagesCount + 1));
                         isLoading = true;
-                        queryMap.put("page", ++pageCount);
-                        load(queryMap);
+                        loadMore();
                     }
                 }
             }
@@ -234,10 +243,45 @@ public class FriendTimelineActivity extends Activity {
         }
     }
 
-    private void load(Map<String, Object> queryMap) {
+    private void refresh() {
+        pagesCount = 0;
+        final Map<String, Object> queryMap = new HashMap<>();
+        queryMap.put("access_token", token);
+        queryMap.put("page", ++pagesCount);
+
         mSubscription = Http.getSinaApi()
-//                .getFriendsTimeline(account.getAccessToken().getValue(), COUNT)
-//                .getFriendsTimeline(new FriendsTimelineRequest.Builder(account.getAccessToken().getValue()).build())
+                .getFriendsTimeline(queryMap)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<StatusContentList>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "onCompleted");
+                        // don't forget this
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(StatusContentList list) {
+                        Log.d(TAG, "onNext");
+                        statusContentList.clear();
+                        statusContentList.addAll(list.getValue());
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+    }
+
+    private void loadMore() {
+        final Map<String, Object> queryMap = new HashMap<>();
+        queryMap.put("access_token", token);
+        queryMap.put("page", ++pagesCount);
+
+        mSubscription = Http.getSinaApi()
                 .getFriendsTimeline(queryMap)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -246,6 +290,8 @@ public class FriendTimelineActivity extends Activity {
                     public void onCompleted() {
                         Log.d(TAG, "onCompleted");
                         isLoading = false;
+                        // scroll to the next item
+                        listView.smoothScrollToPosition(statusesCountPerPage * (pagesCount - 1));
                     }
 
                     @Override
@@ -261,5 +307,4 @@ public class FriendTimelineActivity extends Activity {
                     }
                 });
     }
-
 }
