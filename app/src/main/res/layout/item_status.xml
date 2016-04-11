@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:custom="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipChildren="false"
@@ -9,9 +10,9 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/comm_white"
         android:layout_marginLeft="@dimen/item_margin"
-        android:layout_marginRight="@dimen/item_margin">
+        android:layout_marginRight="@dimen/item_margin"
+        android:background="@color/comm_white">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -68,8 +69,6 @@
                     android:lineSpacingExtra="2dip"
                     android:text="哈哈，我今天发了条微博"/>
 
-                <!--android:background="@drawable/timeline_profile_question_single_normal"-->
-
                 <RelativeLayout
                     android:id="@+id/layout_repost"
                     android:layout_width="match_parent"
@@ -87,7 +86,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="1.5dip"
                         android:layout_marginBottom="8dip"
-                        android:background="#d8d8d8"
+                        android:background="@color/divider_list_view"
                         />
 
                     <TextView
@@ -101,55 +100,25 @@
                 </RelativeLayout>
             </RelativeLayout>
 
-            <com.nancyberry.wepost.ui.widget.NineGridLayout
-                android:id="@+id/img_pics"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-            </com.nancyberry.wepost.ui.widget.NineGridLayout>
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
+                <com.nancyberry.wepost.ui.widget.NineGridLayout
+                    android:id="@+id/img_pics"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="4"
+                    custom:gap_pics="@dimen/gap_pics">
+                </com.nancyberry.wepost.ui.widget.NineGridLayout>
 
-            <!--<com.nancyberry.wepost.ui.widget.TimelinePicsView-->
-            <!--android:id="@+id/layPicturs" android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content">-->
-
-            <!--&lt;!&ndash;org.aisen.weibo.sina.ui.widget.GifHintImageView&ndash;&gt;-->
-            <!--<org.aisen.weibo.sina.ui.widget.GifHintImageView-->
-            <!--android:id="@+id/img01" style="@style/timelinePicture"-->
-            <!--android:layout_width="wrap_content" android:layout_height="wrap_content"/>-->
-
-            <!--<org.aisen.weibo.sina.ui.widget.GifHintImageView-->
-            <!--android:id="@+id/img02" style="@style/timelinePicture"-->
-            <!--android:layout_width="wrap_content" android:layout_height="wrap_content"/>-->
-
-            <!--<org.aisen.weibo.sina.ui.widget.GifHintImageView-->
-            <!--android:id="@+id/img03" style="@style/timelinePicture"-->
-            <!--android:layout_width="wrap_content" android:layout_height="wrap_content"/>-->
-
-            <!--<org.aisen.weibo.sina.ui.widget.GifHintImageView-->
-            <!--android:id="@+id/img04" style="@style/timelinePicture"-->
-            <!--android:layout_width="wrap_content" android:layout_height="wrap_content"/>-->
-
-            <!--<org.aisen.weibo.sina.ui.widget.GifHintImageView-->
-            <!--android:id="@+id/img05" style="@style/timelinePicture"-->
-            <!--android:layout_width="wrap_content" android:layout_height="wrap_content"/>-->
-
-            <!--<org.aisen.weibo.sina.ui.widget.GifHintImageView-->
-            <!--android:id="@+id/img06" style="@style/timelinePicture"-->
-            <!--android:layout_width="wrap_content" android:layout_height="wrap_content"/>-->
-
-            <!--<org.aisen.weibo.sina.ui.widget.GifHintImageView-->
-            <!--android:id="@+id/img07" style="@style/timelinePicture"-->
-            <!--android:layout_width="wrap_content" android:layout_height="wrap_content"/>-->
-
-            <!--<org.aisen.weibo.sina.ui.widget.GifHintImageView-->
-            <!--android:id="@+id/img08" style="@style/timelinePicture"-->
-            <!--android:layout_width="wrap_content" android:layout_height="wrap_content"/>-->
-
-            <!--<org.aisen.weibo.sina.ui.widget.GifHintImageView-->
-            <!--android:id="@+id/img09" style="@style/timelinePicture"-->
-            <!--android:layout_width="wrap_content" android:layout_height="wrap_content"/>-->
-            <!--</com.nancyberry.wepost.ui.widget.TimelinePicsView>-->
-
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                </LinearLayout>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/txtPics"

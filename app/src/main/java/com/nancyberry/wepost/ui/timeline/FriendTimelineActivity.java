@@ -71,6 +71,7 @@ public class FriendTimelineActivity extends Activity {
         listView.setAdapter(adapter);
         loadMore();
 
+        // refresh
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -79,6 +80,7 @@ public class FriendTimelineActivity extends Activity {
             }
         });
 
+        // load more
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -88,7 +90,6 @@ public class FriendTimelineActivity extends Activity {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount > 0) {
-                    // need to loadMore more
                     if (!isLoading) {
                         Log.d(TAG, "loadMore page " + (pagesCount + 1));
                         isLoading = true;

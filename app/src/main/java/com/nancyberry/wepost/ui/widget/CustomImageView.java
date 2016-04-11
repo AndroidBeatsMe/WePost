@@ -74,7 +74,6 @@ public class CustomImageView extends ImageView {
         if (!TextUtils.isEmpty(url)) {
             this.url = url;
             if (isAttachedToWindow) {
-//                Picasso.with(getContext()).load(url).placeholder(new ColorDrawable(Color.parseColor("#f5f5f5"))).into(this);
                 Glide.with(getContext()).load(url)
                         .centerCrop()
                         .placeholder(R.color.comm_gray)

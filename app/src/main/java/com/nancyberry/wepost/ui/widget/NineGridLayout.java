@@ -1,14 +1,14 @@
 package com.nancyberry.wepost.ui.widget;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.nancyberry.wepost.R;
-import com.nancyberry.wepost.common.util.SystemUtils;
 import com.nancyberry.wepost.support.model.PicUrl;
 
 import java.util.List;
@@ -37,28 +37,85 @@ public class NineGridLayout extends ViewGroup {
     public NineGridLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        int maxWidth = SystemUtils.getScreenWidth() - SystemUtils.dip2px(18 * 2);   // TODO: why?
-        totalWidth = Math.round(maxWidth * 4.0f / 5);
-        gap = getResources().getDimensionPixelSize(R.dimen.gap_pics);
+        totalWidth = getMeasuredWidth();
+
+        TypedArray a = context.getTheme().obtainStyledAttributes(
+                attrs,
+                R.styleable.NineGridLayout,
+                0, 0);
+
+        try {
+            // read custom attributes from TypedArray
+            gap = a.getDimensionPixelSize(R.styleable.NineGridLayout_gap_pics, 0);
+        } finally {
+            a.recycle();
+        }
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        Log.d(TAG, "onMeasure width: " + widthMeasureSpec + ", height: " + heightMeasureSpec);
+
+        int desiredWidth = 200;
+        int desiredHeight = 200;
+
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+
+        int width;
+        int height;
+
+        //Measure Width
+        if (widthMode == MeasureSpec.EXACTLY) {
+            //Must be this size
+            width = widthSize;
+        } else if (widthMode == MeasureSpec.AT_MOST) {
+            //Can't be bigger than...
+            width = Math.min(desiredWidth, widthSize);
+        } else {
+            //Be whatever you want
+            width = desiredWidth;
+        }
+
+        //Measure Height
+        if (heightMode == MeasureSpec.EXACTLY) {
+            //Must be this size
+            height = heightSize;
+        } else if (heightMode == MeasureSpec.AT_MOST) {
+            //Can't be bigger than...
+            height = Math.min(desiredHeight, heightSize);
+        } else {
+            //Be whatever you want
+            height = desiredHeight;
+        }
+
+        //MUST CALL THIS
+        setMeasuredDimension(width, height);
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        Log.d(TAG, "onLayout");
+    }
 
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        Log.d(TAG, "onSizeChanged");
+        // calculate and layout children again
+        totalWidth = getMeasuredWidth();
+        layoutChildrenView();
     }
 
     public void setImageData(List<PicUrl> list) {
+        Log.d(TAG, "setImageData");
         if (list == null || list.isEmpty()) {
             return;
         }
 
         generateChildrenLayout(list.size());
-        addChildrens(list.size());
+        addChildren(list.size());
         data = list;
         layoutChildrenView();
     }
@@ -140,12 +197,12 @@ public class NineGridLayout extends ViewGroup {
             }
         });
 
-        view.setBackgroundColor(Color.parseColor("#f5f5f5"));
+//        view.setBackgroundColor(Color.parseColor("#f5f5f5"));
 
         return view;
     }
 
-    private void addChildrens(int newSize) {
+    private void addChildren(int newSize) {
         // reuse view
         int oldSize = data == null ? 0 : data.size();
 
@@ -159,12 +216,5 @@ public class NineGridLayout extends ViewGroup {
             // remove redundant views
             removeViews(newSize, oldSize - newSize);
         }
-
-//        removeAllViews();
-//
-//        for (int i = 0; i < newSize; ++i) {
-//            CustomImageView view = generateImageView();
-//            addView(view, generateDefaultLayoutParams());
-//        }
     }
 }

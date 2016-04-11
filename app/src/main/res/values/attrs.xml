@@ -17,4 +17,8 @@
     <attr name="bg_timline_item" format="reference"/>
     <!--左侧菜单的Header的高度-->
     <attr name="menu_header_height" format="dimension"/>
+
+    <declare-styleable name="NineGridLayout">
+        <attr name="gap_pics" format="dimension" />
+    </declare-styleable>
 </resources>
