@@ -80,8 +80,8 @@ public class NineGridLayout extends ViewGroup {
             childView.setImageUrl(url);
 
             int[] pos = findPosition(i);
-            int left = (singleWidth + gap) * pos[0];
-            int top = (singleHeight + gap) * pos[1];
+            int left = (singleWidth + gap) * pos[1];
+            int top = (singleHeight + gap) * pos[0];
             getChildAt(i).layout(left, top, left + singleWidth, top + singleHeight);
         }
     }
