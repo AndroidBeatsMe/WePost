@@ -79,11 +79,11 @@ public class AccountActivity extends Activity {
             final AccessToken accessToken = (AccessToken) data.getSerializableExtra(LoginActivity.BUNDLE_ACCESS_TOKEN);
 
             mSubscription = Http.getSinaApi()
-                    .getUid(accessToken.getAccessTokenStr())
+                    .getUid(accessToken.getValue())
                     .flatMap(new Func1<Uid, Observable<User>>() {
                         @Override
                         public Observable<User> call(Uid uid) {
-                            return Http.getSinaApi().getUserShow(accessToken.getAccessTokenStr(), uid.getValue());
+                            return Http.getSinaApi().getUserShowByUid(accessToken.getValue(), uid.getValue());
                         }
                     })
                     .subscribeOn(Schedulers.io())

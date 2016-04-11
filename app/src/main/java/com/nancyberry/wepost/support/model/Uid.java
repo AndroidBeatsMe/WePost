@@ -7,13 +7,13 @@ import com.google.gson.annotations.SerializedName;
  */
 public class Uid {
     @SerializedName("uid")
-    private String value;
+    private Long value;
 
-    public String getValue() {
+    public Long getValue() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(Long value) {
         this.value = value;
     }
 }

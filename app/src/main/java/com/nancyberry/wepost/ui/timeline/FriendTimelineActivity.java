@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -25,7 +26,9 @@ import com.nancyberry.wepost.support.model.StatusContentList;
 import com.nancyberry.wepost.ui.widget.NineGridLayout;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -43,6 +46,8 @@ public class FriendTimelineActivity extends Activity {
     private Subscription mSubscription;
     private List<StatusContent> statusContentList;
     private FriendTimelineAdapter adapter;
+    private int pageCount = 0;
+    private boolean isLoading = false;
 
     @Bind(R.id.listview)
     ListView listView;
@@ -59,28 +64,30 @@ public class FriendTimelineActivity extends Activity {
         adapter = new FriendTimelineAdapter(statusContentList);
         listView.setAdapter(adapter);
 
-        mSubscription = Http.getSinaApi()
-                .getFriendsTimeline(account.getAccessToken().getAccessTokenStr(), 100)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<StatusContentList>() {
-                    @Override
-                    public void onCompleted() {
-                        Log.d(TAG, "onCompleted");
-                    }
+        final Map<String, Object> queryMap = new HashMap<>();
+        queryMap.put("access_token", account.getAccessToken().getValue());
+        queryMap.put("page", ++pageCount);
+        load(queryMap);
 
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e(TAG, e.getMessage());
-                    }
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
 
-                    @Override
-                    public void onNext(StatusContentList list) {
-                        Log.d(TAG, "onNext");
-                        statusContentList.addAll(list.getValue());
-                        adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount > 0) {
+                    // need to load more
+                    if (!isLoading) {
+                        Log.d(TAG, "load page " + (pageCount + 1));
+                        isLoading = true;
+                        queryMap.put("page", ++pageCount);
+                        load(queryMap);
                     }
-                });
+                }
+            }
+        });
     }
 
     @Override
@@ -155,7 +162,11 @@ public class FriendTimelineActivity extends Activity {
             String desc = String.format("%s %s", createdAt, from);
 
             viewHolder.desc.setText(desc);
+
+            // content
             viewHolder.content.setText(statusContent.getText());
+
+            // counts
             viewHolder.attitudesCount.setText(String.valueOf(statusContent.getAttitudesCount()));
             viewHolder.repostsCount.setText(String.valueOf(statusContent.getRepostsCount()));
             viewHolder.commentsCount.setText(String.valueOf(statusContent.getCommentsCount()));
@@ -174,7 +185,7 @@ public class FriendTimelineActivity extends Activity {
                     repostText
                             .append("@")
                             .append(repostStatusContent.getUser().getScreenName())
-                            .append(": ");
+                            .append(":");
                 }
 
                 repostText.append(repostStatusContent.getText());
@@ -182,7 +193,7 @@ public class FriendTimelineActivity extends Activity {
                 picStatusContent = repostStatusContent;
             }
 
-
+            // pictures
             if (picStatusContent.getPicUrls().isEmpty()) {
                 viewHolder.pics.setVisibility(View.GONE);
             } else {
@@ -221,6 +232,34 @@ public class FriendTimelineActivity extends Activity {
                 ButterKnife.bind(this, view);
             }
         }
+    }
+
+    private void load(Map<String, Object> queryMap) {
+        mSubscription = Http.getSinaApi()
+//                .getFriendsTimeline(account.getAccessToken().getValue(), COUNT)
+//                .getFriendsTimeline(new FriendsTimelineRequest.Builder(account.getAccessToken().getValue()).build())
+                .getFriendsTimeline(queryMap)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<StatusContentList>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "onCompleted");
+                        isLoading = false;
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(StatusContentList list) {
+                        Log.d(TAG, "onNext");
+                        statusContentList.addAll(list.getValue());
+                        adapter.notifyDataSetChanged();
+                    }
+                });
     }
 
 }

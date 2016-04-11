@@ -5,11 +5,14 @@ import com.nancyberry.wepost.support.model.StatusContentList;
 import com.nancyberry.wepost.support.model.Uid;
 import com.nancyberry.wepost.support.model.User;
 
+import java.util.Map;
+
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
+import retrofit2.http.QueryMap;
 import rx.Observable;
 
 /**
@@ -31,14 +34,16 @@ public interface SinaApi {
             @Query("access_token") String accessToken);
 
     @GET("users/show.json")
-    Observable<User> getUserShow(
+    Observable<User> getUserShowByUid(
             @Query("access_token") String accessToken,
-            @Query("uid") String uid);
+            @Query("uid") Long uid);
+
+    @GET("users/show.json")
+    Observable<User> getUserShowByName(
+            @Query("access_token") String accessToken,
+            @Query("screen_name") String name);
 
     @GET("statuses/friends_timeline.json")
-    Observable<StatusContentList> getFriendsTimeline(
-            @Query("access_token") String accessToken,
-            @Query("count") int count
-    );
+    Observable<StatusContentList> getFriendsTimeline(@QueryMap Map<String, Object> request);
 
 }

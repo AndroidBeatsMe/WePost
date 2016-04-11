@@ -34,8 +34,8 @@ public class CustomImageView extends ImageView {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                Drawable drawable=getDrawable();
-                if(drawable!=null) {
+                Drawable drawable = getDrawable();
+                if (drawable != null) {
                     drawable.mutate().setColorFilter(Color.GRAY,
                             PorterDuff.Mode.MULTIPLY);
                 }
@@ -44,8 +44,8 @@ public class CustomImageView extends ImageView {
                 break;
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
-                Drawable drawableUp=getDrawable();
-                if(drawableUp!=null) {
+                Drawable drawableUp = getDrawable();
+                if (drawableUp != null) {
                     drawableUp.mutate().clearColorFilter();
                 }
                 break;

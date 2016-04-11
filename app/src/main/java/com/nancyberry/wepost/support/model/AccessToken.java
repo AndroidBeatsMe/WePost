@@ -12,11 +12,15 @@ import java.io.Serializable;
  */
 public class AccessToken implements Serializable {
 
-    private @SerializedName("access_token") String accessTokenStr;
+    private
+    @SerializedName("access_token")
+    String value;
 
     private String userId;
 
-    private @SerializedName("expires_in") long expiresIn;
+    private
+    @SerializedName("expires_in")
+    long expiresIn;
 
     private String appKey;
 
@@ -30,18 +34,18 @@ public class AccessToken implements Serializable {
     }
 
     public AccessToken(String accessTokenStr, long expiresIn) {
-        this.accessTokenStr = accessTokenStr;
+        this.value = accessTokenStr;
         this.expiresIn = expiresIn;
         this.createdAt = System.currentTimeMillis();
     }
 
 
-    public String getAccessTokenStr() {
-        return accessTokenStr;
+    public String getValue() {
+        return value;
     }
 
-    public void setAccessTokenStr(String accessTokenStr) {
-        this.accessTokenStr = accessTokenStr;
+    public void setValue(String value) {
+        this.value = value;
     }
 
     public String getUserId() {
@@ -101,7 +105,7 @@ public class AccessToken implements Serializable {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append("Token = {access_token: ").append(accessTokenStr)
+        stringBuilder.append("Token = {access_token: ").append(value)
                 .append(", created_at: ").append(createdAt)
                 .append(", expires_in: ").append(expiresIn).append("}");
 
