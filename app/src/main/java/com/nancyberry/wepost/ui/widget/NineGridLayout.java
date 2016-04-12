@@ -37,8 +37,6 @@ public class NineGridLayout extends ViewGroup {
     public NineGridLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        totalWidth = getMeasuredWidth();
-
         TypedArray a = context.getTheme().obtainStyledAttributes(
                 attrs,
                 R.styleable.NineGridLayout,
