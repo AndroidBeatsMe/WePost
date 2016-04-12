@@ -16,7 +16,9 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.nancyberry.wepost.R;
+import com.nancyberry.wepost.common.util.HttpUtils;
 import com.nancyberry.wepost.sina.Http;
+import com.nancyberry.wepost.sina.request.params.GetUserInfoReqParams;
 import com.nancyberry.wepost.support.model.AccessToken;
 import com.nancyberry.wepost.support.model.Account;
 import com.nancyberry.wepost.support.model.Uid;
@@ -83,7 +85,10 @@ public class AccountActivity extends Activity {
                     .flatMap(new Func1<Uid, Observable<User>>() {
                         @Override
                         public Observable<User> call(Uid uid) {
-                            return Http.getSinaApi().getUserShowByUid(accessToken.getValue(), uid.getValue());
+                            GetUserInfoReqParams params = new GetUserInfoReqParams()
+                                    .withAccessToken(accessToken.getValue())
+                                    .withUid(uid.getValue());
+                            return Http.getSinaApi().getUserInfo(HttpUtils.pojoToMap(params));
                         }
                     })
                     .subscribeOn(Schedulers.io())

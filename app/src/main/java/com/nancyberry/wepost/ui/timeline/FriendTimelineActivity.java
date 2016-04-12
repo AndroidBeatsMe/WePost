@@ -19,15 +19,16 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.nancyberry.wepost.R;
+import com.nancyberry.wepost.common.util.HttpUtils;
 import com.nancyberry.wepost.common.util.StringUtils;
 import com.nancyberry.wepost.sina.Http;
+import com.nancyberry.wepost.sina.request.params.GetFriendsTimelineReqParams;
 import com.nancyberry.wepost.support.model.Account;
 import com.nancyberry.wepost.support.model.StatusContent;
 import com.nancyberry.wepost.support.model.StatusContentList;
 import com.nancyberry.wepost.ui.widget.NineGridLayout;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -246,9 +247,12 @@ public class FriendTimelineActivity extends Activity {
 
     private void refresh() {
         pagesCount = 0;
-        final Map<String, Object> queryMap = new HashMap<>();
-        queryMap.put("access_token", token);
-        queryMap.put("page", ++pagesCount);
+
+        GetFriendsTimelineReqParams params = new GetFriendsTimelineReqParams()
+                .withAccessToken(token)
+                .withPage(++pagesCount);
+
+        Map<String, String> queryMap = HttpUtils.pojoToMap(params);
 
         mSubscription = Http.getSinaApi()
                 .getFriendsTimeline(queryMap)
@@ -278,9 +282,11 @@ public class FriendTimelineActivity extends Activity {
     }
 
     private void loadMore() {
-        final Map<String, Object> queryMap = new HashMap<>();
-        queryMap.put("access_token", token);
-        queryMap.put("page", ++pagesCount);
+        GetFriendsTimelineReqParams params = new GetFriendsTimelineReqParams()
+                .withAccessToken(token)
+                .withPage(++pagesCount);
+
+        Map<String, String> queryMap = HttpUtils.pojoToMap(params);
 
         mSubscription = Http.getSinaApi()
                 .getFriendsTimeline(queryMap)
