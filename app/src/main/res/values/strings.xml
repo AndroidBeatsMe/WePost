@@ -24,4 +24,5 @@
     <string name="msg_shield_success">屏蔽成功</string>
     <string name="msg_shield_faild">屏蔽失败</string>
 
+    <string name="load_more">正在加载...</string>
 </resources>

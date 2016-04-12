@@ -1,19 +1,15 @@
 package com.nancyberry.wepost.ui.timeline;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -42,7 +38,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by nan.zhang on 4/5/16.
  */
-public class FriendTimelineActivity extends Activity {
+public class FriendTimelineActivity extends SwipeRefreshListActivity {
     public static final String TAG = FriendTimelineActivity.class.getSimpleName();
     public static final String BUNDLE_ACCOUNT = "account";
     private Subscription mSubscription;
@@ -50,55 +46,20 @@ public class FriendTimelineActivity extends Activity {
     private FriendTimelineAdapter adapter;
     private static final int statusesCountPerPage = 20;
     private int pagesCount = 0;
-    private boolean isLoading = false;
     private String token;
-
-    @Bind(R.id.swipe_refresh_layout)
-    SwipeRefreshLayout swipeRefreshLayout;
-    @Bind(R.id.listview)
-    ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_friend_timeline);
-        ButterKnife.bind(this);
 
         Account account = (Account) getIntent().getSerializableExtra(BUNDLE_ACCOUNT);
         token = account.getAccessToken().getValue();
         statusContentList = new ArrayList<>();
         adapter = new FriendTimelineAdapter(statusContentList);
         listView.setAdapter(adapter);
+
         loadMore();
-
-        // refresh
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                Log.d(TAG, "refreshing...");
-                refresh();
-            }
-        });
-
-        // load more
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount > 0) {
-                    if (!isLoading) {
-                        Log.d(TAG, "loadMore page " + (pagesCount + 1));
-                        isLoading = true;
-                        loadMore();
-                    }
-                }
-            }
-        });
     }
 
     @Override
@@ -296,9 +257,6 @@ public class FriendTimelineActivity extends Activity {
                     @Override
                     public void onCompleted() {
                         Log.d(TAG, "onCompleted");
-                        isLoading = false;
-                        // scroll to the next item
-                        listView.smoothScrollToPosition(statusesCountPerPage * (pagesCount - 1));
                     }
 
                     @Override
@@ -311,7 +269,26 @@ public class FriendTimelineActivity extends Activity {
                         Log.d(TAG, "onNext");
                         statusContentList.addAll(list.getValue());
                         adapter.notifyDataSetChanged();
+                        // scroll to the next item
+                        Log.d(TAG, "scroll to " + statusesCountPerPage * (pagesCount - 1));
+                        listView.smoothScrollToPosition(statusesCountPerPage * (pagesCount - 1));
+
+                        isLoading = false;
                     }
                 });
+    }
+
+    @Override
+    public void requestData(RefreshMode mode) {
+        switch (mode) {
+            case REFRESH:
+                refresh();
+                break;
+            case LOAD_MORE:
+                loadMore();
+                break;
+            default:
+                break;
+        }
     }
 }
