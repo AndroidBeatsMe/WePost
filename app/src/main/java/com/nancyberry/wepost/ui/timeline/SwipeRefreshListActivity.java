@@ -58,7 +58,7 @@ public abstract class SwipeRefreshListActivity extends Activity
 
     public void onPullUpToLoadMore() {
         Log.d(TAG, "onPullUpToLoadMore");
-//        listView.addFooterView(footerView);
+        listView.addFooterView(footerView);
         requestData(RefreshMode.LOAD_MORE);
     }
 

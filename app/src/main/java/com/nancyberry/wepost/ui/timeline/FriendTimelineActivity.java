@@ -207,6 +207,10 @@ public class FriendTimelineActivity extends SwipeRefreshListActivity {
     }
 
     private void refresh() {
+        if (isRefreshing()) {
+            return;
+        }
+
         pagesCount = 0;
 
         GetFriendsTimelineReqParams params = new GetFriendsTimelineReqParams()
@@ -267,6 +271,8 @@ public class FriendTimelineActivity extends SwipeRefreshListActivity {
                     @Override
                     public void onNext(StatusContentList list) {
                         Log.d(TAG, "onNext");
+                        listView.removeFooterView(footerView);
+
                         statusContentList.addAll(list.getValue());
                         adapter.notifyDataSetChanged();
                         // scroll to the next item
