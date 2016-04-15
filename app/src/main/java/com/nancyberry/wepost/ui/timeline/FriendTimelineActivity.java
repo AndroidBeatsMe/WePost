@@ -59,7 +59,7 @@ public class FriendTimelineActivity extends SwipeRefreshListActivity {
         adapter = new FriendTimelineAdapter(statusContentList);
         listView.setAdapter(adapter);
 
-        loadMore();
+        requestData(RefreshMode.LOAD_MORE);
     }
 
     @Override
@@ -207,9 +207,9 @@ public class FriendTimelineActivity extends SwipeRefreshListActivity {
     }
 
     private void refresh() {
-        if (isRefreshing()) {
-            return;
-        }
+//        if (isRefreshing()) {
+//            return;
+//        }
 
         pagesCount = 0;
 
@@ -239,6 +239,7 @@ public class FriendTimelineActivity extends SwipeRefreshListActivity {
                     @Override
                     public void onNext(StatusContentList list) {
                         Log.d(TAG, "onNext");
+                        swipeRefreshLayout.setRefreshing(false);
                         statusContentList.clear();
                         statusContentList.addAll(list.getValue());
                         adapter.notifyDataSetChanged();
