@@ -195,6 +195,9 @@ public class AccountActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mSubscription.unsubscribe();
+
+        if (mSubscription != null) {
+            mSubscription.unsubscribe();
+        }
     }
 }

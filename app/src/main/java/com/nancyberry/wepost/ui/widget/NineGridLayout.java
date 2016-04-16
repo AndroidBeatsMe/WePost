@@ -54,8 +54,9 @@ public class NineGridLayout extends ViewGroup {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         Log.d(TAG, "onMeasure width: " + widthMeasureSpec + ", height: " + heightMeasureSpec);
 
-        int desiredWidth = 200;
-        int desiredHeight = 200;
+        // TODO: the default width and height should base on what?
+        int desiredWidth = 1000;
+        int desiredHeight = 1000;
 
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
@@ -90,12 +91,14 @@ public class NineGridLayout extends ViewGroup {
         }
 
         //MUST CALL THIS
+        Log.d(TAG, "setMeasureDimension: (" + width + ", " + height + ")");
         setMeasuredDimension(width, height);
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         Log.d(TAG, "onLayout");
+        layoutChildren();
     }
 
     @Override
@@ -103,7 +106,7 @@ public class NineGridLayout extends ViewGroup {
         Log.d(TAG, "onSizeChanged");
         // calculate and layout children again
         totalWidth = getMeasuredWidth();
-        layoutChildrenView();
+        layoutChildren();
     }
 
     public void setImageData(List<PicUrl> list) {
@@ -115,10 +118,12 @@ public class NineGridLayout extends ViewGroup {
         generateChildrenLayout(list.size());
         addChildren(list.size());
         data = list;
-        layoutChildrenView();
+
+        // TODO: Calling requestLayout() works no good, should find out why!
+        layoutChildren();
     }
 
-    private void layoutChildrenView() {
+    private void layoutChildren() {
         int singleWidth = (totalWidth - gap * 2) / 3;
         int singleHeight = singleWidth;
 
@@ -130,13 +135,16 @@ public class NineGridLayout extends ViewGroup {
             CustomImageView childView = (CustomImageView) getChildAt(i);
 
             String url = data.get(i).getThumbnailPic();
-//            url.replace("thumbnail_pic", "bmiddle_pic");
-//            childView.setImageUrl(data.get(i).getThumbnailPic());
+            // replace pic to a clear one
+            url.replace("thumbnail_pic", "bmiddle_pic");
+            childView.setImageUrl(data.get(i).getThumbnailPic());
             childView.setImageUrl(url);
 
             int[] pos = findPosition(i);
             int left = (singleWidth + gap) * pos[1];
             int top = (singleHeight + gap) * pos[0];
+            // layout child, it seems like the getWidth and getMeasureWidth of the child are not the same
+            // Don't know how to
             getChildAt(i).layout(left, top, left + singleWidth, top + singleHeight);
         }
     }

@@ -30,17 +30,19 @@ public class AccountLab {
         }
 
         // TODO: find a better way to store accounts
-        Account fakeAccount = new Account();
-        User fakeUser = new User();
-        fakeUser.setProfileImageUrl("http://tp1.sinaimg.cn/5812295980/50/5746319708/0");
-        fakeUser.setScreenName("虾米南瓜球");
-        fakeUser.setDescription("hehe");
-        fakeAccount.setUser(fakeUser);
-        AccessToken fakeToken = new AccessToken();
-        fakeToken.setValue("2.003hn22Gu_WsZC293476e02b072ZTF");
-        fakeToken.setExpiresIn(660520);
-        fakeAccount.setAccessToken(fakeToken);
-        sAccountLab.addAccount(fakeAccount);
+        if (sAccountLab.getAccountList().isEmpty()) {
+            Account fakeAccount = new Account();
+            User fakeUser = new User();
+            fakeUser.setProfileImageUrl("http://tp1.sinaimg.cn/5812295980/50/5746319708/0");
+            fakeUser.setScreenName("虾米南瓜球");
+            fakeUser.setDescription("hehe");
+            fakeAccount.setUser(fakeUser);
+            AccessToken fakeToken = new AccessToken();
+            fakeToken.setValue("2.003hn22Gu_WsZC293476e02b072ZTF");
+            fakeToken.setExpiresIn(660520);
+            fakeAccount.setAccessToken(fakeToken);
+            sAccountLab.addAccount(fakeAccount);
+        }
 
         return sAccountLab;
     }
