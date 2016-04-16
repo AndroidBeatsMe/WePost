@@ -71,6 +71,8 @@ public class CustomImageView extends ImageView {
 
 
     public void setImageUrl(String url) {
+        setBackgroundResource(R.color.comm_red);
+
         if (!TextUtils.isEmpty(url)) {
             this.url = url;
             if (isAttachedToWindow) {

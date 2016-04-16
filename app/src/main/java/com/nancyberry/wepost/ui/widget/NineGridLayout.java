@@ -125,6 +125,12 @@ public class NineGridLayout extends ViewGroup {
 
     private void layoutChildren() {
         int singleWidth = (totalWidth - gap * 2) / 3;
+
+        if (getChildCount() == 1) {    // one picture should be larger
+            singleWidth = totalWidth;
+        }
+
+
         int singleHeight = singleWidth;
 
         ViewGroup.LayoutParams params = getLayoutParams();
@@ -134,10 +140,9 @@ public class NineGridLayout extends ViewGroup {
         for (int i = 0; i < getChildCount(); ++i) {
             CustomImageView childView = (CustomImageView) getChildAt(i);
 
-            String url = data.get(i).getThumbnailPic();
             // replace pic to a clear one
-            url.replace("thumbnail_pic", "bmiddle_pic");
-            childView.setImageUrl(data.get(i).getThumbnailPic());
+//            String url = data.get(i).getThumbnailPic();
+            String url = data.get(i).getThumbnailPic().replace("thumbnail", "bmiddle");
             childView.setImageUrl(url);
 
             int[] pos = findPosition(i);
