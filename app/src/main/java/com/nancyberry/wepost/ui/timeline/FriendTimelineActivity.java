@@ -1,8 +1,10 @@
 package com.nancyberry.wepost.ui.timeline;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
@@ -10,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -23,6 +26,7 @@ import com.nancyberry.wepost.support.model.Account;
 import com.nancyberry.wepost.support.model.StatusContent;
 import com.nancyberry.wepost.support.model.StatusContentList;
 import com.nancyberry.wepost.ui.widget.NineGridLayout;
+import com.nancyberry.wepost.ui.widget.RefreshLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +42,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by nan.zhang on 4/5/16.
  */
-public class FriendTimelineActivity extends SwipeRefreshListActivity {
+public class FriendTimelineActivity extends Activity implements RefreshLayout.OnLoadMoreListener, SwipeRefreshLayout.OnRefreshListener {
     public static final String TAG = FriendTimelineActivity.class.getSimpleName();
     public static final String BUNDLE_ACCOUNT = "account";
     private Subscription mSubscription;
@@ -48,10 +52,18 @@ public class FriendTimelineActivity extends SwipeRefreshListActivity {
     private int pagesCount = 0;
     private String token;
 
+    @Bind(R.id.layout_refresh)
+    RefreshLayout refreshLayout;
+
+    @Bind(R.id.listview)
+    ListView listView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_friend_timeline);
+        ButterKnife.bind(this);
 
         Account account = (Account) getIntent().getSerializableExtra(BUNDLE_ACCOUNT);
         token = account.getAccessToken().getValue();
@@ -59,7 +71,12 @@ public class FriendTimelineActivity extends SwipeRefreshListActivity {
         adapter = new FriendTimelineAdapter(statusContentList);
         listView.setAdapter(adapter);
 
-        requestData(RefreshMode.LOAD_MORE);
+        refreshLayout.setListView(listView);
+        refreshLayout.setFooterView(this, R.layout.footer_listview);
+        refreshLayout.setOnLoadMoreListener(this);
+        refreshLayout.setOnRefreshListener(this);
+
+        onLoadMore();
     }
 
     @Override
@@ -206,11 +223,8 @@ public class FriendTimelineActivity extends SwipeRefreshListActivity {
         }
     }
 
-    private void refresh() {
-//        if (isRefreshing()) {
-//            return;
-//        }
-
+    @Override
+    public void onRefresh() {
         pagesCount = 0;
 
         GetFriendsTimelineReqParams params = new GetFriendsTimelineReqParams()
@@ -228,18 +242,18 @@ public class FriendTimelineActivity extends SwipeRefreshListActivity {
                     public void onCompleted() {
                         Log.d(TAG, "onCompleted");
                         // don't forget this
-                        swipeRefreshLayout.setRefreshing(false);
+                        refreshLayout.setRefreshing(false);
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG, e.getMessage());
+                        refreshLayout.setRefreshing(false);
                     }
 
                     @Override
                     public void onNext(StatusContentList list) {
                         Log.d(TAG, "onNext");
-                        swipeRefreshLayout.setRefreshing(false);
                         statusContentList.clear();
                         statusContentList.addAll(list.getValue());
                         adapter.notifyDataSetChanged();
@@ -247,7 +261,9 @@ public class FriendTimelineActivity extends SwipeRefreshListActivity {
                 });
     }
 
-    private void loadMore() {
+    @Override
+    public void onLoadMore() {
+
         GetFriendsTimelineReqParams params = new GetFriendsTimelineReqParams()
                 .withAccessToken(token)
                 .withPage(++pagesCount);
@@ -262,17 +278,19 @@ public class FriendTimelineActivity extends SwipeRefreshListActivity {
                     @Override
                     public void onCompleted() {
                         Log.d(TAG, "onCompleted");
+                        refreshLayout.setLoading(false);
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG, e.getMessage());
+                        refreshLayout.setLoading(false);
                     }
 
                     @Override
                     public void onNext(StatusContentList list) {
                         Log.d(TAG, "onNext");
-                        listView.removeFooterView(footerView);
+                        refreshLayout.removeFooterView();
 
                         statusContentList.addAll(list.getValue());
                         adapter.notifyDataSetChanged();
@@ -280,22 +298,8 @@ public class FriendTimelineActivity extends SwipeRefreshListActivity {
                         Log.d(TAG, "scroll to " + statusesCountPerPage * (pagesCount - 1));
                         listView.smoothScrollToPosition(statusesCountPerPage * (pagesCount - 1));
 
-                        isLoading = false;
+                        refreshLayout.setLoading(false);
                     }
                 });
-    }
-
-    @Override
-    public void requestData(RefreshMode mode) {
-        switch (mode) {
-            case REFRESH:
-                refresh();
-                break;
-            case LOAD_MORE:
-                loadMore();
-                break;
-            default:
-                break;
-        }
     }
 }
