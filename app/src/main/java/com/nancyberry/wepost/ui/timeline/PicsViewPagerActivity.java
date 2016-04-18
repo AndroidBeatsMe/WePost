@@ -56,6 +56,8 @@ public class PicsViewPagerActivity extends FragmentActivity {
         pagerAdapter = new CustomPagerAdapter(this);
 
         viewPager.setAdapter(pagerAdapter);
+        // Don't forget to set current item to the specific one
+        viewPager.setCurrentItem(index);
     }
 
     public class CustomPagerAdapter extends PagerAdapter {

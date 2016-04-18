@@ -23,6 +23,8 @@ public class CustomImageView extends ImageView {
     private String url;
     private boolean isAttachedToWindow;
 
+    private OnImageViewSelectedListener listener;
+
     public CustomImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
@@ -52,10 +54,16 @@ public class CustomImageView extends ImageView {
                 if (drawableUp != null) {
                     drawableUp.mutate().clearColorFilter();
                 }
+
+                if (listener != null) {
+                    listener.onImageViewSelected(this);
+                }
+
                 break;
         }
 
-        return super.onTouchEvent(event);
+//        return super.onTouchEvent(event);
+        return true;
     }
 
     @Override
@@ -87,5 +95,13 @@ public class CustomImageView extends ImageView {
                         .into(this);
             }
         }
+    }
+
+    public void setListener(OnImageViewSelectedListener listener) {
+        this.listener = listener;
+    }
+
+    public interface OnImageViewSelectedListener {
+        void onImageViewSelected(CustomImageView view);
     }
 }

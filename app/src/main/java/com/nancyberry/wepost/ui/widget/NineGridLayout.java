@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Created by nan.zhang on 4/8/16.
  */
-public class NineGridLayout extends ViewGroup {
+public class NineGridLayout extends ViewGroup implements CustomImageView.OnImageViewSelectedListener {
 
     public static final String TAG = NineGridLayout.class.getSimpleName();
 
@@ -212,6 +212,7 @@ public class NineGridLayout extends ViewGroup {
     private CustomImageView generateImageView() {
         CustomImageView view = new CustomImageView(getContext());
         view.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        view.setListener(this);
 //        view.setBackgroundColor(Color.parseColor("#f5f5f5"));
 
         return view;
@@ -236,23 +237,30 @@ public class NineGridLayout extends ViewGroup {
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         Log.d(TAG, "event intercepted!");
-        return true;
+        return false;
+//        return true;
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        Log.d(TAG, "onTouchEvent:" + event.getAction());
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        Log.d(TAG, "onTouchEvent:" + event.getAction());
 
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-            case MotionEvent.ACTION_MOVE:
-            case MotionEvent.ACTION_CANCEL:
-                return true;
-            case MotionEvent.ACTION_UP:
-                PicsViewPagerActivity.actionStart(context, statusContent, 0);
-                return true;
-            default:
-                return false;
-        }
+//        switch (event.getAction()) {
+//            case MotionEvent.ACTION_DOWN:
+//            case MotionEvent.ACTION_MOVE:
+//            case MotionEvent.ACTION_CANCEL:
+//                return true;
+//            case MotionEvent.ACTION_UP:
+//                PicsViewPagerActivity.actionStart(context, statusContent, 0);
+//                return true;
+//            default:
+//                return false;
+//        }
+//    }
+
+    @Override
+    public void onImageViewSelected(CustomImageView view) {
+        int index = indexOfChild(view);
+        PicsViewPagerActivity.actionStart(context, statusContent, index);
     }
 }
