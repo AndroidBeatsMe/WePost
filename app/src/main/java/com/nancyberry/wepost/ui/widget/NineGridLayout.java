@@ -4,12 +4,14 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.View;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.nancyberry.wepost.R;
 import com.nancyberry.wepost.support.model.PicUrl;
+import com.nancyberry.wepost.support.model.StatusContent;
+import com.nancyberry.wepost.ui.timeline.PicsViewPagerActivity;
 
 import java.util.List;
 
@@ -19,6 +21,8 @@ import java.util.List;
 public class NineGridLayout extends ViewGroup {
 
     public static final String TAG = NineGridLayout.class.getSimpleName();
+
+    private StatusContent statusContent;
 
     private List<PicUrl> data;
 
@@ -30,12 +34,16 @@ public class NineGridLayout extends ViewGroup {
 
     private int columnCount;
 
+    private Context context;
+
     public NineGridLayout(Context context) {
         super(context);
+        this.context = context;
     }
 
     public NineGridLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+        this.context = context;
 
         TypedArray a = context.getTheme().obtainStyledAttributes(
                 attrs,
@@ -109,7 +117,9 @@ public class NineGridLayout extends ViewGroup {
         layoutChildren();
     }
 
-    public void setImageData(List<PicUrl> list) {
+    public void setImageData(StatusContent statusContent) {
+        List<PicUrl> list = statusContent.getPicUrls();
+
         Log.d(TAG, "setImageData");
         if (list == null || list.isEmpty()) {
             return;
@@ -117,6 +127,7 @@ public class NineGridLayout extends ViewGroup {
 
         generateChildrenLayout(list.size());
         addChildren(list.size());
+        this.statusContent = statusContent;
         data = list;
 
         // TODO: Calling requestLayout() works no good, should find out why!
@@ -201,13 +212,6 @@ public class NineGridLayout extends ViewGroup {
     private CustomImageView generateImageView() {
         CustomImageView view = new CustomImageView(getContext());
         view.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        view.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
 //        view.setBackgroundColor(Color.parseColor("#f5f5f5"));
 
         return view;
@@ -226,6 +230,29 @@ public class NineGridLayout extends ViewGroup {
         } else if (oldSize > newSize) {
             // remove redundant views
             removeViews(newSize, oldSize - newSize);
+        }
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        Log.d(TAG, "event intercepted!");
+        return true;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        Log.d(TAG, "onTouchEvent:" + event.getAction());
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_MOVE:
+            case MotionEvent.ACTION_CANCEL:
+                return true;
+            case MotionEvent.ACTION_UP:
+                PicsViewPagerActivity.actionStart(context, statusContent, 0);
+                return true;
+            default:
+                return false;
         }
     }
 }

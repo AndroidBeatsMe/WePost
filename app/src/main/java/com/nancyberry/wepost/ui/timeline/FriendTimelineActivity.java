@@ -187,7 +187,7 @@ public class FriendTimelineActivity extends Activity implements RefreshLayout.On
                 viewHolder.pics.setVisibility(View.GONE);
             } else {
                 viewHolder.pics.setVisibility(View.VISIBLE);
-                viewHolder.pics.setImageData(picStatusContent.getPicUrls());
+                viewHolder.pics.setImageData(picStatusContent);
             }
 
             return view;
@@ -290,6 +290,7 @@ public class FriendTimelineActivity extends Activity implements RefreshLayout.On
                     @Override
                     public void onNext(StatusContentList list) {
                         Log.d(TAG, "onNext");
+
                         refreshLayout.removeFooterView();
 
                         statusContentList.addAll(list.getValue());

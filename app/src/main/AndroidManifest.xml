@@ -33,6 +33,7 @@
         </activity>
         <activity android:name=".ui.login.LoginActivity" />
         <activity android:name=".ui.timeline.FriendTimelineActivity" />
+        <activity android:name=".ui.timeline.PicsViewPagerActivity" />
     </application>
 
 </manifest>

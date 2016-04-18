@@ -6,6 +6,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
@@ -17,6 +18,8 @@ import com.nancyberry.wepost.R;
  * Created by Pan_ on 2015/2/2.
  */
 public class CustomImageView extends ImageView {
+    public static final String TAG = CustomImageView.class.getSimpleName();
+
     private String url;
     private boolean isAttachedToWindow;
 
@@ -31,6 +34,7 @@ public class CustomImageView extends ImageView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        Log.d(TAG, "onTouchEvent:" + event.getAction());
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
