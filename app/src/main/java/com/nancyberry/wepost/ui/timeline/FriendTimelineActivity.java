@@ -290,9 +290,6 @@ public class FriendTimelineActivity extends Activity implements RefreshLayout.On
                     @Override
                     public void onNext(StatusContentList list) {
                         Log.d(TAG, "onNext");
-
-                        refreshLayout.removeFooterView();
-
                         statusContentList.addAll(list.getValue());
                         adapter.notifyDataSetChanged();
                         // scroll to the next item
