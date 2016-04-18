@@ -2,10 +2,13 @@ package com.nancyberry.wepost.support.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StatusContent {
+public class StatusContent implements Serializable {
+
+    private static final long serialVersionUID = -2994626484778505236L;
 
     @SerializedName("created_at")
    //    @Expose

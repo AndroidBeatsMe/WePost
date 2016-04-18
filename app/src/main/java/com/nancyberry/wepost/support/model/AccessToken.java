@@ -12,6 +12,8 @@ import java.io.Serializable;
  */
 public class AccessToken implements Serializable {
 
+    private static final long serialVersionUID = -526147309387062788L;
+
     private
     @SerializedName("access_token")
     String value;

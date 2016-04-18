@@ -9,6 +9,8 @@ import java.io.Serializable;
  */
 public class User implements Serializable {
 
+    private static final long serialVersionUID = -1929409378793989082L;
+
     private String token;
 
     @SerializedName("id")

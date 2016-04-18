@@ -6,7 +6,11 @@ package com.nancyberry.wepost.support.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class PicUrl {
+import java.io.Serializable;
+
+public class PicUrl implements Serializable {
+
+    private static final long serialVersionUID = 3353028445443180643L;
 
     @SerializedName("thumbnail_pic")
 //    @Expose

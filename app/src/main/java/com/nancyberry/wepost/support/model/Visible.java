@@ -5,7 +5,11 @@ package com.nancyberry.wepost.support.model;
  */
 import com.google.gson.annotations.SerializedName;
 
-public class Visible {
+import java.io.Serializable;
+
+public class Visible implements Serializable {
+
+    private static final long serialVersionUID = -8818367431213835807L;
 
     @SerializedName("type")
 //    @Expose

@@ -8,6 +8,8 @@ import java.util.UUID;
  */
 public class Account implements Serializable {
 
+    private static final long serialVersionUID = 5164112295444064792L;
+
     private UUID id;
 
     private User user;
