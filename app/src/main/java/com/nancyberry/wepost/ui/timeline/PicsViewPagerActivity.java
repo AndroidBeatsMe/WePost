@@ -71,27 +71,14 @@ public class PicsViewPagerActivity extends FragmentActivity {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             View view = LayoutInflater.from(context).inflate(R.layout.pager_picture, null);
-            ImageView thumbnailImageView = (ImageView) view.findViewById(R.id.img_thumbnail);
             ImageView largeImageView = (ImageView) view.findViewById(R.id.img_large);
 
             String thumbnailUrl = statusContent.getPicUrls().get(position).getThumbnailPic();
             String largeUrl = thumbnailUrl.replace("thumbnail", "large");
 
-//            Glide
-//                    .with(context)
-//                    .load(thumbnailUrl)
-//                    .placeholder(R.color.comm_gray)
-//                    .fitCenter()
-//                    .crossFade()
-//                    .into(thumbnailImageView);
-
-            thumbnailImageView.setVisibility(View.GONE);
-            largeImageView.setVisibility(View.VISIBLE);
-
-            Glide
-                    .with(context)
+            Glide.with(context)
                     .load(largeUrl)
-                    .placeholder(R.color.comm_gray)
+                    .thumbnail(Glide.with(context).load(thumbnailUrl))
                     .fitCenter()
                     .crossFade()
                     .into(largeImageView);
