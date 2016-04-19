@@ -1,13 +1,8 @@
 package com.nancyberry.wepost.ui.widget;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -23,8 +18,6 @@ public class CustomImageView extends ImageView {
     private String url;
     private boolean isAttachedToWindow;
 
-    private OnImageViewSelectedListener listener;
-
     public CustomImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
@@ -34,37 +27,37 @@ public class CustomImageView extends ImageView {
     }
 
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        Log.d(TAG, "onTouchEvent:" + event.getAction());
-
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                Drawable drawable = getDrawable();
-                if (drawable != null) {
-                    drawable.mutate().setColorFilter(Color.GRAY,
-                            PorterDuff.Mode.MULTIPLY);
-                }
-                break;
-            case MotionEvent.ACTION_MOVE:
-                break;
-            case MotionEvent.ACTION_CANCEL:
-            case MotionEvent.ACTION_UP:
-                Drawable drawableUp = getDrawable();
-                if (drawableUp != null) {
-                    drawableUp.mutate().clearColorFilter();
-                }
-
-                if (listener != null) {
-                    listener.onImageViewSelected(this);
-                }
-
-                break;
-        }
-
-//        return super.onTouchEvent(event);
-        return true;
-    }
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        Log.d(TAG, "onTouchEvent:" + event.getAction());
+//
+//        switch (event.getAction()) {
+//            case MotionEvent.ACTION_DOWN:
+//                Drawable drawable = getDrawable();
+//                if (drawable != null) {
+//                    drawable.mutate().setColorFilter(Color.GRAY,
+//                            PorterDuff.Mode.MULTIPLY);
+//                }
+//                break;
+//            case MotionEvent.ACTION_MOVE:
+//                break;
+//            case MotionEvent.ACTION_CANCEL:
+//            case MotionEvent.ACTION_UP:
+//                Drawable drawableUp = getDrawable();
+//                if (drawableUp != null) {
+//                    drawableUp.mutate().clearColorFilter();
+//                }
+//
+//                if (imageViewSelectedListener != null) {
+//                    imageViewSelectedListener.onImageViewSelected(this);
+//                }
+//
+//                break;
+//        }
+//
+////        return super.onTouchEvent(event);
+//        return true;
+//    }
 
     @Override
     public void onAttachedToWindow() {
@@ -95,13 +88,5 @@ public class CustomImageView extends ImageView {
                         .into(this);
             }
         }
-    }
-
-    public void setListener(OnImageViewSelectedListener listener) {
-        this.listener = listener;
-    }
-
-    public interface OnImageViewSelectedListener {
-        void onImageViewSelected(CustomImageView view);
     }
 }

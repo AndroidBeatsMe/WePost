@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -18,7 +19,7 @@ import java.util.List;
 /**
  * Created by nan.zhang on 4/8/16.
  */
-public class NineGridLayout extends ViewGroup implements CustomImageView.OnImageViewSelectedListener {
+public class NineGridLayout extends ViewGroup implements View.OnClickListener {
 
     public static final String TAG = NineGridLayout.class.getSimpleName();
 
@@ -149,12 +150,13 @@ public class NineGridLayout extends ViewGroup implements CustomImageView.OnImage
         setLayoutParams(params);
 
         for (int i = 0; i < getChildCount(); ++i) {
-            CustomImageView childView = (CustomImageView) getChildAt(i);
+            final CustomImageView childView = (CustomImageView) getChildAt(i);
 
             // replace pic to a clear one
 //            String url = data.get(i).getThumbnailPic();
             String url = data.get(i).getThumbnailPic().replace("thumbnail", "bmiddle");
             childView.setImageUrl(url);
+            childView.setOnClickListener(this);
 
             int[] pos = findPosition(i);
             int left = (singleWidth + gap) * pos[1];
@@ -212,7 +214,6 @@ public class NineGridLayout extends ViewGroup implements CustomImageView.OnImage
     private CustomImageView generateImageView() {
         CustomImageView view = new CustomImageView(getContext());
         view.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        view.setListener(this);
 //        view.setBackgroundColor(Color.parseColor("#f5f5f5"));
 
         return view;
@@ -259,8 +260,10 @@ public class NineGridLayout extends ViewGroup implements CustomImageView.OnImage
 //    }
 
     @Override
-    public void onImageViewSelected(CustomImageView view) {
-        int index = indexOfChild(view);
+    public void onClick(View v) {
+        Log.d(TAG, "child onClick");
+        int index = indexOfChild(v);
+        // invoke ViewPager
         PicsViewPagerActivity.actionStart(context, statusContent, index);
     }
 }
