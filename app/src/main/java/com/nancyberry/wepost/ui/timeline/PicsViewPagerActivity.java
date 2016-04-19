@@ -83,6 +83,14 @@ public class PicsViewPagerActivity extends FragmentActivity {
                     .crossFade()
                     .into(largeImageView);
 
+            // single click
+            largeImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    PicsViewPagerActivity.this.finish();
+                }
+            });
+
             container.addView(view);
             return view;
         }
