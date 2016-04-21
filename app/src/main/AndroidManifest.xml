@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.nancyberry.wepost">
+<manifest package="com.nancyberry.wepost"
+          xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:name="com.nancyberry.wepost.common.context.GlobalContext"
@@ -12,31 +12,35 @@
         android:theme="@android:style/Theme.Holo.Light.DarkActionBar">
         <meta-data
             android:name="CLIENT_ID"
-            android:value="\ 2362431378" />
+            android:value="\ 2362431378"/>
         <meta-data
             android:name="CLIENT_SECRET"
-            android:value="582ce3cdcdeb8a3b45087073d0dbcadf" />
+            android:value="582ce3cdcdeb8a3b45087073d0dbcadf"/>
         <meta-data
             android:name="REDIRECT_URI"
-            android:value="http://boyqiang520.s8.csome.cn/oauth2/" />
+            android:value="http://boyqiang520.s8.csome.cn/oauth2/"/>
         <meta-data
             android:name="BASE_URI"
-            android:value="https://api.weibo.com/2/" />
+            android:value="https://api.weibo.com/2/"/>
 
         <activity
             android:name=".ui.account.AccountActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ui.login.LoginActivity" />
-        <activity android:name=".ui.timeline.FriendTimelineActivity" />
+        <activity android:name=".ui.login.LoginActivity"
+                  android:screenOrientation="portrait"/>
+        <activity android:name=".ui.timeline.FriendTimelineActivity"
+                  android:screenOrientation="portrait"/>
         <activity
             android:name=".ui.timeline.PicsViewPagerActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     </application>
 
 </manifest>
