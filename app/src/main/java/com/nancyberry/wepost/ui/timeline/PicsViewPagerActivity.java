@@ -2,6 +2,7 @@ package com.nancyberry.wepost.ui.timeline;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
@@ -11,15 +12,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.nancyberry.wepost.R;
 import com.nancyberry.wepost.support.model.StatusContent;
+
+import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
  * Created by nan.zhang on 4/12/16.
  */
-public class PicsViewPagerActivity extends FragmentActivity {
+public class PicsViewPagerActivity extends FragmentActivity implements View.OnLongClickListener {
 
     public static final String TAG = PicsViewPagerActivity.class.getSimpleName();
 
@@ -33,6 +40,8 @@ public class PicsViewPagerActivity extends FragmentActivity {
     private StatusContent statusContent;
 
     private int index;
+
+    private PhotoViewAttacher attacher;
 
     public static void actionStart(Context context, StatusContent statusContent, int index) {
         Intent intent = new Intent(context, PicsViewPagerActivity.class);
@@ -60,6 +69,13 @@ public class PicsViewPagerActivity extends FragmentActivity {
         viewPager.setCurrentItem(index);
     }
 
+    @Override
+    public boolean onLongClick(View v) {
+        // TODO: save image
+        Toast.makeText(this, "onLongClick", Toast.LENGTH_SHORT).show();
+        return true;
+    }
+
     public class CustomPagerAdapter extends PagerAdapter {
 
         private Context context;
@@ -71,7 +87,7 @@ public class PicsViewPagerActivity extends FragmentActivity {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             View view = LayoutInflater.from(context).inflate(R.layout.pager_picture, null);
-            ImageView largeImageView = (ImageView) view.findViewById(R.id.img_large);
+            final ImageView largeImageView = (ImageView) view.findViewById(R.id.img_large);
 
             String thumbnailUrl = statusContent.getPicUrls().get(position).getThumbnailPic();
             String largeUrl = thumbnailUrl.replace("thumbnail", "large");
@@ -81,15 +97,27 @@ public class PicsViewPagerActivity extends FragmentActivity {
                     .thumbnail(Glide.with(context).load(thumbnailUrl))
                     .fitCenter()
                     .crossFade()
-                    .into(largeImageView);
+                    .into(new GlideDrawableImageViewTarget(largeImageView) {
+                        @Override
+                        public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> animation) {
+                            Log.wtf(TAG, "onResourceReady");
+                            // here it's similar to RequestListener, but with less information (e.g. no model available)
+                            super.onResourceReady(resource, animation);
+                            // here you can be sure it's already set
+                            // Use PhotoViewAttacher to deal with zoom in & out
+                            attacher = new PhotoViewAttacher((largeImageView));
+                            // deal with long click
+                            attacher.setOnLongClickListener(PicsViewPagerActivity.this);
+                        }
 
-            // single click
-            largeImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    PicsViewPagerActivity.this.finish();
-                }
-            });
+                        @Override
+                        public void onLoadFailed(Exception e, Drawable errorDrawable) {
+                            Log.e(TAG, "onLoadFailed!");
+                            super.onLoadFailed(e, errorDrawable);
+                        }
+                    });
+
+
 
             container.addView(view);
             return view;
@@ -111,7 +139,7 @@ public class PicsViewPagerActivity extends FragmentActivity {
         }
     }
 
-//    public class MainPagerAdapter extends PagerAdapter {
+    //    public class MainPagerAdapter extends PagerAdapter {
 //        // This holds all the currently displayable views, in order from left to right.
 //        private ArrayList<View> views = new ArrayList<View>();
 //
