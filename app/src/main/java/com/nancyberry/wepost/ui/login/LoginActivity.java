@@ -15,8 +15,9 @@ import android.widget.Toast;
 
 import com.nancyberry.wepost.R;
 import com.nancyberry.wepost.common.context.GlobalContext;
+import com.nancyberry.wepost.common.util.HttpUtils;
 import com.nancyberry.wepost.sina.Http;
-import com.nancyberry.wepost.sina.request.body.GetAccessTokenReqBody;
+import com.nancyberry.wepost.sina.request.params.GetAccessTokenReqParams;
 import com.nancyberry.wepost.support.model.AccessToken;
 
 import butterknife.Bind;
@@ -72,7 +73,7 @@ public class LoginActivity extends Activity {
                 Log.d(TAG, "code = " + code);
                 view.loadUrl(url);
 
-                GetAccessTokenReqBody body = new GetAccessTokenReqBody()
+                GetAccessTokenReqParams params = new GetAccessTokenReqParams()
                         .withClientId(GlobalContext.getInstance().CLIENT_ID)
                         .withClientSecret(GlobalContext.getInstance().CLIENT_SECRET)
                         .withGrantType("authorization_code")
@@ -80,7 +81,7 @@ public class LoginActivity extends Activity {
                         .withRedirectUri(GlobalContext.getInstance().REDIRECT_URI);
 
                 mSubscription = Http.getSinaApi()
-                        .getAccessToken(body)
+                        .getAccessToken(HttpUtils.pojoToMap(params))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Observer<AccessToken>() {

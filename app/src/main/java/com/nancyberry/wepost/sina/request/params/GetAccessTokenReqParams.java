@@ -1,46 +1,22 @@
-package com.nancyberry.wepost.sina.request.body;
-
-/**
- * Created by nan.zhang on 4/12/16.
- */
+package com.nancyberry.wepost.sina.request.params;
 
 import com.google.gson.annotations.SerializedName;
 
-public class GetAccessTokenReqBody {
+/**
+ * Created by nan.zhang on 5/10/16.
+ */
+public class GetAccessTokenReqParams {
 
     @SerializedName("client_id")
     private String clientId;
     @SerializedName("client_secret")
     private String clientSecret;
-    @SerializedName("grant_type")
-    private String grantType;
     @SerializedName("code")
     private String code;
+    @SerializedName("grant_type")
+    private String grantType;
     @SerializedName("redirect_uri")
     private String redirectUri;
-
-    /**
-     * No args constructor for use in serialization
-     *
-     */
-    public GetAccessTokenReqBody() {
-    }
-
-    /**
-     *
-     * @param grantType
-     * @param code
-     * @param redirectUri
-     * @param clientSecret
-     * @param clientId
-     */
-    public GetAccessTokenReqBody(String clientId, String clientSecret, String grantType, String code, String redirectUri) {
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
-        this.grantType = grantType;
-        this.code = code;
-        this.redirectUri = redirectUri;
-    }
 
     /**
      *
@@ -60,7 +36,7 @@ public class GetAccessTokenReqBody {
         this.clientId = clientId;
     }
 
-    public GetAccessTokenReqBody withClientId(String clientId) {
+    public GetAccessTokenReqParams withClientId(String clientId) {
         this.clientId = clientId;
         return this;
     }
@@ -83,31 +59,8 @@ public class GetAccessTokenReqBody {
         this.clientSecret = clientSecret;
     }
 
-    public GetAccessTokenReqBody withClientSecret(String clientSecret) {
+    public GetAccessTokenReqParams withClientSecret(String clientSecret) {
         this.clientSecret = clientSecret;
-        return this;
-    }
-
-    /**
-     *
-     * @return
-     * The grantType
-     */
-    public String getGrantType() {
-        return grantType;
-    }
-
-    /**
-     *
-     * @param grantType
-     * The grant_type
-     */
-    public void setGrantType(String grantType) {
-        this.grantType = grantType;
-    }
-
-    public GetAccessTokenReqBody withGrantType(String grantType) {
-        this.grantType = grantType;
         return this;
     }
 
@@ -129,8 +82,31 @@ public class GetAccessTokenReqBody {
         this.code = code;
     }
 
-    public GetAccessTokenReqBody withCode(String code) {
+    public GetAccessTokenReqParams withCode(String code) {
         this.code = code;
+        return this;
+    }
+
+    /**
+     *
+     * @return
+     * The grantType
+     */
+    public String getGrantType() {
+        return grantType;
+    }
+
+    /**
+     *
+     * @param grantType
+     * The grant_type
+     */
+    public void setGrantType(String grantType) {
+        this.grantType = grantType;
+    }
+
+    public GetAccessTokenReqParams withGrantType(String grantType) {
+        this.grantType = grantType;
         return this;
     }
 
@@ -152,7 +128,7 @@ public class GetAccessTokenReqBody {
         this.redirectUri = redirectUri;
     }
 
-    public GetAccessTokenReqBody withRedirectUri(String redirectUri) {
+    public GetAccessTokenReqParams withRedirectUri(String redirectUri) {
         this.redirectUri = redirectUri;
         return this;
     }
