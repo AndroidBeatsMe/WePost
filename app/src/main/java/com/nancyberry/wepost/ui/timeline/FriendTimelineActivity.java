@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -153,7 +154,8 @@ public class FriendTimelineActivity extends Activity implements RefreshLayout.On
             viewHolder.desc.setText(desc);
 
             // content
-            viewHolder.content.setText(statusContent.getText());
+            viewHolder.content.setText(StatusContent.parseText(FriendTimelineActivity.this, statusContent.getText()));
+            viewHolder.content.setMovementMethod(LinkMovementMethod.getInstance());
 
             // counts
             viewHolder.attitudesCount.setText(String.valueOf(statusContent.getAttitudesCount()));
@@ -178,7 +180,9 @@ public class FriendTimelineActivity extends Activity implements RefreshLayout.On
                 }
 
                 repostText.append(repostStatusContent.getText());
-                viewHolder.repostContent.setText(repostText);
+                viewHolder.repostContent.setText(StatusContent.parseText(FriendTimelineActivity.this, repostText.toString()));
+                viewHolder.repostContent.setMovementMethod(LinkMovementMethod.getInstance());
+
                 picStatusContent = repostStatusContent;
             }
 
