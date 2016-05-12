@@ -20,7 +20,10 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.nancyberry.wepost.R;
 import com.nancyberry.wepost.support.model.StatusContent;
+import com.viewpagerindicator.PageIndicator;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
@@ -33,7 +36,10 @@ public class PicsViewPagerActivity extends FragmentActivity implements View.OnLo
     public static final String BUNDLE_STATUS_CONTENT = "startscontent";
     public static final String BUNDLE_INDEX = "index";
 
-    private ViewPager viewPager;
+    @Bind(R.id.view_pager)
+    ViewPager viewPager;
+    @Bind(R.id.view_pager_indicator)
+    PageIndicator viewPagerIndicator;
 
     private PagerAdapter pagerAdapter;
 
@@ -54,9 +60,9 @@ public class PicsViewPagerActivity extends FragmentActivity implements View.OnLo
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
-        viewPager = new ViewPager(this);
-        viewPager.setId(R.id.view_pager);
-        setContentView(viewPager);
+        setContentView(R.layout.activity_photo_view_pager);
+        ButterKnife.bind(this);
+
 
         Intent intent = getIntent();
         statusContent = (StatusContent) intent.getSerializableExtra(BUNDLE_STATUS_CONTENT);
@@ -65,8 +71,11 @@ public class PicsViewPagerActivity extends FragmentActivity implements View.OnLo
         pagerAdapter = new CustomPagerAdapter(this);
 
         viewPager.setAdapter(pagerAdapter);
+
+        // Bind the indicator to the adapter
         // Don't forget to set current item to the specific one
-        viewPager.setCurrentItem(index);
+        viewPagerIndicator.setViewPager(viewPager, index);
+//        viewPager.setCurrentItem(index);
     }
 
     @Override
@@ -87,7 +96,7 @@ public class PicsViewPagerActivity extends FragmentActivity implements View.OnLo
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             View view = LayoutInflater.from(context).inflate(R.layout.pager_picture, null);
-            final ImageView largeImageView = (ImageView) view.findViewById(R.id.img_large);
+            final ImageView imageView = (ImageView) view.findViewById(R.id.img_large);
 
             String thumbnailUrl = statusContent.getPicUrls().get(position).getThumbnailPic();
             String largeUrl = thumbnailUrl.replace("thumbnail", "large");
@@ -97,7 +106,7 @@ public class PicsViewPagerActivity extends FragmentActivity implements View.OnLo
                     .thumbnail(Glide.with(context).load(thumbnailUrl))
                     .fitCenter()
                     .crossFade()
-                    .into(new GlideDrawableImageViewTarget(largeImageView) {
+                    .into(new GlideDrawableImageViewTarget(imageView) {
                         @Override
                         public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> animation) {
                             Log.wtf(TAG, "onResourceReady");
@@ -105,7 +114,7 @@ public class PicsViewPagerActivity extends FragmentActivity implements View.OnLo
                             super.onResourceReady(resource, animation);
                             // here you can be sure it's already set
                             // Use PhotoViewAttacher to deal with zoom in & out
-                            attacher = new PhotoViewAttacher((largeImageView));
+                            attacher = new PhotoViewAttacher((imageView));
                             // deal with long click
                             attacher.setOnLongClickListener(PicsViewPagerActivity.this);
                         }
@@ -116,7 +125,6 @@ public class PicsViewPagerActivity extends FragmentActivity implements View.OnLo
                             super.onLoadFailed(e, errorDrawable);
                         }
                     });
-
 
 
             container.addView(view);
