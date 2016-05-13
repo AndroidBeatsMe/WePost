@@ -1,6 +1,8 @@
 package com.nancyberry.wepost.support.model;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
@@ -637,12 +639,14 @@ public class StatusContent implements Serializable {
         while (urlMatcher.find()) {
             int start = urlMatcher.start();
             int end = urlMatcher.end();
-            String urlText = urlMatcher.group();
+            final String urlText = urlMatcher.group();
 
             ClickableSpan span = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse(urlText));
+                    context.startActivity(intent);
                 }
 
                 @Override
