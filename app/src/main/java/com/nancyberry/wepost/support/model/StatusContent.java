@@ -1,7 +1,6 @@
 package com.nancyberry.wepost.support.model;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -13,6 +12,7 @@ import android.widget.Toast;
 
 import com.google.gson.annotations.SerializedName;
 import com.nancyberry.wepost.R;
+import com.nancyberry.wepost.ui.BrowserActivity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -644,9 +644,16 @@ public class StatusContent implements Serializable {
             ClickableSpan span = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setData(Uri.parse(urlText));
-                    context.startActivity(intent);
+                    /**
+                     * Implicit intent
+                     */
+//                    Intent intent = new Intent(Intent.ACTION_VIEW);
+//                    intent.setData(Uri.parse(urlText));
+//                    context.startActivity(intent);
+                    /**
+                     * Explicit intent
+                     */
+                    BrowserActivity.actionStart(context, Uri.parse(urlText));
                 }
 
                 @Override

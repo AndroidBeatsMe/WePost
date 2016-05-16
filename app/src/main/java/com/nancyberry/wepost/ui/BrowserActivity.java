@@ -1,7 +1,9 @@
 package com.nancyberry.wepost.ui;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -22,6 +24,8 @@ import butterknife.ButterKnife;
 public class BrowserActivity extends Activity {
 
     private final static String TAG = BrowserActivity.class.getSimpleName();
+
+    public static final String BUNDLE_URL = BrowserActivity.class.getName() + ".BUNDLE_URL";
 
     @Bind(R.id.progress_bar)
     ProgressBar progressBar;
@@ -46,6 +50,9 @@ public class BrowserActivity extends Activity {
         String action = getIntent().getAction();
         if (Intent.ACTION_VIEW.equalsIgnoreCase(action) && getIntent().getData() != null) {
             url = getIntent().getData().toString();
+        } else {
+            // read from bundle
+            url = getIntent().getParcelableExtra(BUNDLE_URL).toString();
         }
 
         if (url != null) {
@@ -84,5 +91,11 @@ public class BrowserActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         webview.destroy();
+    }
+
+    public static void actionStart(Context context, Uri url) {
+        Intent intent = new Intent(context, BrowserActivity.class);
+        intent.putExtra(BUNDLE_URL, url);
+        context.startActivity(intent);
     }
 }
