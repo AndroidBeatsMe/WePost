@@ -2,6 +2,8 @@ package com.nancyberry.wepost.common.util;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.text.Html;
+import android.text.TextUtils;
 
 import com.nancyberry.wepost.R;
 import com.nancyberry.wepost.common.context.GlobalContext;
@@ -70,5 +72,15 @@ public class StringUtils {
             }
         }
         return "";
+    }
+
+    public static String getDesc(String createdAt, String source) {
+        if (!TextUtils.isEmpty(createdAt)) {
+            createdAt = StringUtils.formatDate(createdAt);
+        }
+
+        if (!TextUtils.isEmpty(source))
+            source = String.format("%s", Html.fromHtml(source));
+        return String.format("%s %s", createdAt, source);
     }
 }

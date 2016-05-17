@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:paddingBottom="0dip"
+                android:paddingLeft="8dip"
+                android:paddingRight="8dip"
+                android:paddingTop="0dip">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/comm_white"
+        android:orientation="vertical"
+        android:padding="@dimen/item_padding">
+
+        <ImageView
+            android:id="@+id/imgPhoto"
+            android:layout_width="42dip"
+            android:layout_height="42dip"
+            android:layout_marginRight="8dip"
+            android:scaleType="centerCrop"/>
+
+        <TextView
+            android:id="@+id/txtName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/imgPhoto"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="名字"
+            android:textColor="@color/comm_gray"
+            android:textSize="16sp"/>
+
+        <RelativeLayout
+            android:id="@+id/layRe"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txtName"
+            android:layout_toRightOf="@id/imgPhoto"
+            android:orientation="vertical"
+            android:paddingTop="8dip">
+
+            <ImageView
+                android:id="@+id/imgRePhoto" android:layout_width="40dip"
+                android:layout_height="40dip"
+                android:layout_marginRight="@dimen/comm_h_gap"/>
+
+            <TextView
+                android:id="@+id/txtReContent"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/imgRePhoto" android:ellipsize="end"
+                android:gravity="center_vertical" android:maxLines="2"
+                android:minHeight="40dip" android:textSize="14sp"
+            />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/txtContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:layout_below="@id/layRe"
+            android:layout_marginBottom="8dip"
+            android:layout_marginTop="8dip" android:layout_toRightOf="@id/imgPhoto"
+            android:gravity="center_vertical"
+            android:minHeight="26dip" android:text="我是评论正文"/>
+
+        <TextView
+            android:id="@+id/txtDesc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:layout_below="@id/txtContent"
+            android:layout_toRightOf="@id/imgPhoto" android:ellipsize="end"
+            android:singleLine="true"
+            android:text="昨天 来自Aisen微博"
+            android:textColor="@color/comm_gray"
+            android:textSize="13sp"/>
+
+        <!--<View-->
+            <!--android:id="@+id/layDivider"-->
+            <!--android:layout_width="match_parent" android:layout_height="1.5dip"-->
+            <!--android:layout_below="@id/txtDesc" android:layout_marginBottom="8dip"-->
+            <!--android:layout_marginTop="8dip"-->
+            <!--android:background="@color/divider_list_view"/>-->
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/btnMenus" android:layout_width="40dip" android:layout_height="40dip"
+        android:layout_alignParentRight="true"
+        android:paddingBottom="8dip" android:src="@drawable/selector_card_menu"/>
+
+</RelativeLayout>

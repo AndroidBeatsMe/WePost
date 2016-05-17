@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.Html;
-import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -71,6 +69,7 @@ public class FriendTimelineActivity extends Activity implements RefreshLayout.On
         statusContentList = new ArrayList<>();
         adapter = new FriendTimelineAdapter(statusContentList);
         listView.setAdapter(adapter);
+        listView.setItemsCanFocus(true);
 
         refreshLayout.setListView(listView);
         refreshLayout.setFooterView(this, R.layout.footer_listview);
@@ -118,8 +117,8 @@ public class FriendTimelineActivity extends Activity implements RefreshLayout.On
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            StatusContent statusContent = getItem(position);
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            final StatusContent statusContent = getItem(position);
             View view;
             ViewHolder viewHolder;
 
@@ -142,16 +141,7 @@ public class FriendTimelineActivity extends Activity implements RefreshLayout.On
                     .into(viewHolder.avatar);
 
             // desc
-            String createdAt = "";
-            if (!TextUtils.isEmpty(statusContent.getCreatedAt())) {
-                createdAt = StringUtils.formatDate(statusContent.getCreatedAt());
-            }
-            String from = "";
-            if (!TextUtils.isEmpty(statusContent.getSource()))
-                from = String.format("%s", Html.fromHtml(statusContent.getSource()));
-            String desc = String.format("%s %s", createdAt, from);
-
-            viewHolder.desc.setText(desc);
+            viewHolder.desc.setText(StringUtils.getDesc(statusContent.getCreatedAt(), statusContent.getSource()));
 
             // content
             viewHolder.content.setText(StatusContent.parseText(FriendTimelineActivity.this, statusContent.getText()));
@@ -193,6 +183,16 @@ public class FriendTimelineActivity extends Activity implements RefreshLayout.On
                 viewHolder.pics.setVisibility(View.VISIBLE);
                 viewHolder.pics.setImageData(picStatusContent);
             }
+
+            view.setClickable(true);
+            view.setFocusable(true);
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.wtf(TAG, "onItemClick, position: " + position);
+                    TimelineCommentsActivity.actionStart(FriendTimelineActivity.this, token, statusContent);
+                }
+            });
 
             return view;
         }

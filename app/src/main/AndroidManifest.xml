@@ -48,6 +48,7 @@
                 <data android:scheme="http"/>
             </intent-filter>
         </activity>
+        <activity android:name=".ui.timeline.TimelineCommentsActivity"></activity>
     </application>
 
 </manifest>

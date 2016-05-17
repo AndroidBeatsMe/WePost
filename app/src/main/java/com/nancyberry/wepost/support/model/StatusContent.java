@@ -25,7 +25,6 @@ public class StatusContent implements Serializable {
     private static final long serialVersionUID = -2994626484778505236L;
 
     @SerializedName("created_at")
-
     private String createdAt;
     @SerializedName("id")
     private Long id;

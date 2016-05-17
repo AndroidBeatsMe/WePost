@@ -1,6 +1,7 @@
 package com.nancyberry.wepost.sina;
 
 import com.nancyberry.wepost.support.model.AccessToken;
+import com.nancyberry.wepost.support.model.StatusCommentList;
 import com.nancyberry.wepost.support.model.StatusContentList;
 import com.nancyberry.wepost.support.model.Uid;
 import com.nancyberry.wepost.support.model.User;
@@ -29,5 +30,8 @@ public interface SinaApi {
 
     @GET("statuses/friends_timeline.json")
     Observable<StatusContentList> getFriendsTimeline(@QueryMap Map<String, String> queryMap);
+
+    @GET("comments/show.json")
+    Observable<StatusCommentList> getTimelineComments(@QueryMap Map<String, String> queryMap);
 
 }
