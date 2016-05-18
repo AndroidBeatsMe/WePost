@@ -73,10 +73,9 @@ public class FriendTimelineActivity extends Activity implements RefreshLayout.On
 
         refreshLayout.setListView(listView);
         refreshLayout.setFooterView(this, R.layout.footer_listview);
+        refreshLayout.bindOnScrollListener(null, true);
         refreshLayout.setOnLoadMoreListener(this);
         refreshLayout.setOnRefreshListener(this);
-
-        onLoadMore();
     }
 
     @Override
@@ -230,6 +229,8 @@ public class FriendTimelineActivity extends Activity implements RefreshLayout.On
     @Override
     public void onRefresh() {
         pagesCount = 0;
+        // Add footView in case it has been removed
+        refreshLayout.setFooterView(this, R.layout.footer_listview);
 
         GetFriendsTimelineReqParams params = new GetFriendsTimelineReqParams()
                 .withAccessToken(token)
@@ -261,6 +262,7 @@ public class FriendTimelineActivity extends Activity implements RefreshLayout.On
                         statusContentList.clear();
                         statusContentList.addAll(list.getValue());
                         adapter.notifyDataSetChanged();
+                        refreshLayout.setRefreshing(false);
                     }
                 });
     }
@@ -296,6 +298,8 @@ public class FriendTimelineActivity extends Activity implements RefreshLayout.On
                         Log.d(TAG, "onNext");
                         statusContentList.addAll(list.getValue());
                         adapter.notifyDataSetChanged();
+
+                        refreshLayout.hideFooterView();
                         // scroll to the next item
                         Log.d(TAG, "scroll to " + statusesCountPerPage * (pagesCount - 1));
                         listView.smoothScrollToPosition(statusesCountPerPage * (pagesCount - 1));

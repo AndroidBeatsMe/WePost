@@ -3,6 +3,7 @@ package com.nancyberry.wepost.ui.widget;
 import android.content.Context;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
@@ -36,32 +37,31 @@ public class RefreshLayout extends SwipeRefreshLayout {
     }
 
     public void setFooterView(Context context, int resourceId) {
+        if (footerView != null) {
+            return;
+        }
+
         footerView = LayoutInflater.from(context).inflate(resourceId, null);
         listView.addFooterView(footerView);
+        hideFooterView();
+    }
 
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-            }
-
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (totalItemCount > listView.getFooterViewsCount()
-                        && firstVisibleItem + visibleItemCount == totalItemCount - listView.getFooterViewsCount()) {
-                    if (!loading) {
-                        loading = true;
-
-                        if (onLoadMoreListener != null) {
-                            onLoadMoreListener.onLoadMore();
-                        }
-                    }
-                }
-            }
-        });
+    public void bindOnScrollListener(AbsListView.OnScrollListener onScrollListener, boolean useDefault) {
+        if (useDefault) {
+            listView.setOnScrollListener(new DefaultOnScrollListener());
+        } else {
+            listView.setOnScrollListener(onScrollListener);
+        }
     }
 
     public void removeFooterView() {
+        Log.d(TAG, "remove footerView");
         listView.removeFooterView(footerView);
+        footerView = null;
+    }
+
+    public void hideFooterView() {
+        footerView.setVisibility(GONE);
     }
 
     public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener) {
@@ -81,5 +81,35 @@ public class RefreshLayout extends SwipeRefreshLayout {
 
     public boolean isLoading() {
         return loading;
+    }
+
+    public class DefaultOnScrollListener implements AbsListView.OnScrollListener {
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+        }
+
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            if (firstVisibleItem + visibleItemCount == totalItemCount) {
+                Log.d(TAG, "onScroll to the end! Should load more");
+                if (footerView == null) {
+                    Log.d(TAG, "no footerView, stop loading more");
+                    return;
+                }
+
+                if (!loading) {
+                    Log.d(TAG, "Show footerView");
+                    footerView.setVisibility(VISIBLE);
+
+                    loading = true;
+
+                    if (onLoadMoreListener != null) {
+                        Log.d(TAG, "loading more...");
+                        onLoadMoreListener.onLoadMore();
+                    }
+                }
+            }
+        }
     }
 }

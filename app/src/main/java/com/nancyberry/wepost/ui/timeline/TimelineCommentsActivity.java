@@ -46,7 +46,6 @@ public class TimelineCommentsActivity extends Activity implements RefreshLayout.
     public static final String BUNDLE_TOKEN = TimelineCommentsActivity.class.getName() + ".BUNDLE_TOKEN";
     private static final int commentsCountPerPage = 50;
     private int pagesCount = 0;
-    private long commentsTotalCount = 0;
 
     @Bind(R.id.listview)
     ListView listView;
@@ -83,10 +82,9 @@ public class TimelineCommentsActivity extends Activity implements RefreshLayout.
 
         refreshLayout.setListView(listView);
         refreshLayout.setFooterView(this, R.layout.footer_listview);
+        refreshLayout.bindOnScrollListener(null, true);
         refreshLayout.setOnLoadMoreListener(this);
         refreshLayout.setOnRefreshListener(this);
-
-        onLoadMore();
     }
 
     public void displayHeaderView(HeaderViewHolder viewHolder, StatusContent statusContent) {
@@ -175,7 +173,6 @@ public class TimelineCommentsActivity extends Activity implements RefreshLayout.
 
     public static void actionStart(Context context, String token, StatusContent statusContent) {
         Intent intent = new Intent(context, TimelineCommentsActivity.class);
-//        intent.putExtra(BUNDLE_STATUS_ID, id);
         intent.putExtra(BUNDLE_TOKEN, token);
         intent.putExtra(BUNDLE_STATUS, statusContent);
         context.startActivity(intent);
@@ -184,6 +181,8 @@ public class TimelineCommentsActivity extends Activity implements RefreshLayout.
     @Override
     public void onRefresh() {
         pagesCount = 0;
+        // Add footView in case it has been removed
+        refreshLayout.setFooterView(this, R.layout.footer_listview);
 
         GetTimelineCommentsReqParams params = new GetTimelineCommentsReqParams()
                 .withAccessToken(token)
@@ -209,8 +208,20 @@ public class TimelineCommentsActivity extends Activity implements RefreshLayout.
                     public void onNext(StatusCommentList list) {
                         statusCommentList.clear();
                         statusCommentList.addAll(list.getValue());
-                        commentsTotalCount = list.getTotalNumber();
                         adapter.notifyDataSetChanged();
+
+                        if (list.getValue().isEmpty()) {
+                            Log.d(TAG, "no more data");
+                            --pagesCount;
+                            refreshLayout.removeFooterView();
+                        } else {
+                            refreshLayout.hideFooterView();
+                            // scroll to the next item
+                            Log.d(TAG, "scroll to " + commentsCountPerPage * (pagesCount - 1));
+                            listView.smoothScrollToPosition(commentsCountPerPage * (pagesCount - 1));
+                        }
+
+                        refreshLayout.setRefreshing(false);
                     }
                 });
     }
@@ -239,12 +250,19 @@ public class TimelineCommentsActivity extends Activity implements RefreshLayout.
 
                     @Override
                     public void onNext(StatusCommentList list) {
-                        Log.d(TAG, "" + list.getValue().size());
                         statusCommentList.addAll(list.getValue());
                         adapter.notifyDataSetChanged();
-                        // scroll to the next item
-                        Log.d(TAG, "scroll to " + commentsCountPerPage * (pagesCount - 1));
-                        listView.smoothScrollToPosition(commentsCountPerPage * (pagesCount - 1));
+
+                        if (list.getValue().isEmpty()) {
+                            Log.d(TAG, "no more data");
+                            --pagesCount;
+                            refreshLayout.removeFooterView();
+                        } else {
+                            refreshLayout.hideFooterView();
+                            // scroll to the next item
+                            Log.d(TAG, "scroll to " + commentsCountPerPage * (pagesCount - 1));
+                            listView.smoothScrollToPosition(commentsCountPerPage * (pagesCount - 1));
+                        }
 
                         refreshLayout.setLoading(false);
                     }
