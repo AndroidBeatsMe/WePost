@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import com.nancyberry.wepost.sina.request.params.GetTimelineCommentsReqParams;
 import com.nancyberry.wepost.support.model.StatusComment;
 import com.nancyberry.wepost.support.model.StatusCommentList;
 import com.nancyberry.wepost.support.model.StatusContent;
+import com.nancyberry.wepost.ui.widget.NineGridLayout;
 import com.nancyberry.wepost.ui.widget.RefreshLayout;
 
 import java.util.ArrayList;
@@ -40,7 +42,7 @@ import rx.schedulers.Schedulers;
 public class TimelineCommentsActivity extends Activity implements RefreshLayout.OnLoadMoreListener, RefreshLayout.OnRefreshListener {
 
     public static final String TAG = TimelineCommentsActivity.class.getSimpleName();
-    public static final String BUNDLE_STATUS_ID = TimelineCommentsActivity.class.getName() + ".BUNDLE_STATUS_ID";
+    public static final String BUNDLE_STATUS = TimelineCommentsActivity.class.getName() + ".BUNDLE_STATUS";
     public static final String BUNDLE_TOKEN = TimelineCommentsActivity.class.getName() + ".BUNDLE_TOKEN";
     private static final int commentsCountPerPage = 50;
     private int pagesCount = 0;
@@ -57,6 +59,7 @@ public class TimelineCommentsActivity extends Activity implements RefreshLayout.
 
     private String token;
     private Long id;
+    private StatusContent statusContent;
 
 
     @Override
@@ -66,11 +69,17 @@ public class TimelineCommentsActivity extends Activity implements RefreshLayout.
         ButterKnife.bind(this);
 
         token = getIntent().getStringExtra(BUNDLE_TOKEN);
-        id = getIntent().getLongExtra(BUNDLE_STATUS_ID, -1);
+        statusContent = (StatusContent) getIntent().getSerializableExtra(BUNDLE_STATUS);
+        id = statusContent.getId();
 
         statusCommentList = new ArrayList<>();
         adapter = new TimelineCommentsAdapter(statusCommentList);
         listView.setAdapter(adapter);
+
+        View headerView = getLayoutInflater().inflate(R.layout.item_status, null);
+        HeaderViewHolder viewHolder = new HeaderViewHolder(headerView);
+        displayHeaderView(viewHolder, statusContent);
+        listView.addHeaderView(headerView, statusContent, false);
 
         refreshLayout.setListView(listView);
         refreshLayout.setFooterView(this, R.layout.footer_listview);
@@ -80,10 +89,95 @@ public class TimelineCommentsActivity extends Activity implements RefreshLayout.
         onLoadMore();
     }
 
-    public static void actionStart(Context context, String token, Long id) {
+    public void displayHeaderView(HeaderViewHolder viewHolder, StatusContent statusContent) {
+        viewHolder.name.setText(statusContent.getUser().getScreenName());
+
+        Glide.with(TimelineCommentsActivity.this)
+                .load(statusContent.getUser().getProfileImageUrl())
+                .centerCrop()
+//                    .placeholder(R.color.comm_gray)
+                .crossFade()
+                .into(viewHolder.avatar);
+
+        // desc
+        viewHolder.desc.setText(StringUtils.getDesc(statusContent.getCreatedAt(), statusContent.getSource()));
+
+        // content
+        viewHolder.content.setText(StatusContent.parseText(TimelineCommentsActivity.this, statusContent.getText()));
+        viewHolder.content.setMovementMethod(LinkMovementMethod.getInstance());
+
+        // counts
+        viewHolder.attitudesCount.setText(String.valueOf(statusContent.getAttitudesCount()));
+        viewHolder.repostsCount.setText(String.valueOf(statusContent.getRepostsCount()));
+        viewHolder.commentsCount.setText(String.valueOf(statusContent.getCommentsCount()));
+
+        StatusContent picStatusContent = statusContent;
+
+        // repost
+        if (statusContent.getRetweetedStatus() == null) {
+            viewHolder.repostLayout.setVisibility(View.GONE);
+        } else {
+            StatusContent repostStatusContent = statusContent.getRetweetedStatus();
+            viewHolder.repostLayout.setVisibility(View.VISIBLE);
+            StringBuilder repostText = new StringBuilder();
+
+            if (repostStatusContent.getUser() != null) {
+                repostText
+                        .append("@")
+                        .append(repostStatusContent.getUser().getScreenName())
+                        .append(":");
+            }
+
+            repostText.append(repostStatusContent.getText());
+            viewHolder.repostContent.setText(StatusContent.parseText(TimelineCommentsActivity.this, repostText.toString()));
+            viewHolder.repostContent.setMovementMethod(LinkMovementMethod.getInstance());
+
+            picStatusContent = repostStatusContent;
+        }
+
+        // pictures
+        if (picStatusContent.getPicUrls().isEmpty()) {
+            viewHolder.pics.setVisibility(View.GONE);
+        } else {
+            viewHolder.pics.setVisibility(View.VISIBLE);
+            viewHolder.pics.setImageData(picStatusContent);
+        }
+    }
+
+    class HeaderViewHolder {
+        @Bind(R.id.img_avatar)
+        ImageView avatar;
+        @Bind(R.id.text_name)
+        TextView name;
+        @Bind(R.id.text_desc)
+        TextView desc;
+        @Bind(R.id.text_content)
+        TextView content;
+        @Bind(R.id.text_attitudes_count)
+        TextView attitudesCount;
+        @Bind(R.id.text_reposts_count)
+        TextView repostsCount;
+        @Bind(R.id.text_comments_count)
+        TextView commentsCount;
+        @Bind(R.id.img_pics)
+        NineGridLayout pics;
+        @Bind(R.id.layout_repost)
+        RelativeLayout repostLayout;
+        @Bind(R.id.repost_divider)
+        View repostDivider;
+        @Bind(R.id.txt_repost_content)
+        TextView repostContent;
+
+        public HeaderViewHolder(View view) {
+            ButterKnife.bind(this, view);
+        }
+    }
+
+    public static void actionStart(Context context, String token, StatusContent statusContent) {
         Intent intent = new Intent(context, TimelineCommentsActivity.class);
-        intent.putExtra(BUNDLE_STATUS_ID, id);
+//        intent.putExtra(BUNDLE_STATUS_ID, id);
         intent.putExtra(BUNDLE_TOKEN, token);
+        intent.putExtra(BUNDLE_STATUS, statusContent);
         context.startActivity(intent);
     }
 
